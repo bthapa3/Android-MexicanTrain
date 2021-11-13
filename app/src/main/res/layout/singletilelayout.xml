@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="35dp"
+    android:layout_height="40dp">
+
+    <TextView
+        android:id="@+id/tile"
+        android:layout_width="35dp"
+        android:layout_height="40dp"
+        android:background="@color/purple_200"
+        android:shadowColor="@color/black"
+        android:text="A\nB"
+        android:padding="2dp"
+        android:textSize="15dp"
+        android:layout_margin="2px"
+        android:textColor="@color/black"
+        ></TextView>
+
+</androidx.appcompat.widget.LinearLayoutCompat>
