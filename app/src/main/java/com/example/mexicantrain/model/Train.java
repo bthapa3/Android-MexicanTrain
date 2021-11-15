@@ -13,9 +13,7 @@ public class Train {
         m_typeoftrain = a_train;
         m_trainmarked = false;
     }
-    public void SetTrainType(String traintype){
-        m_typeoftrain=traintype;
-    }
+
 
     public void Addtile(Tile a_tiletobeadded){
         m_traintiles.add(a_tiletobeadded);

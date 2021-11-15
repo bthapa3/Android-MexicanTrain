@@ -49,7 +49,7 @@ public class TileAdapter extends RecyclerView.Adapter<TileAdapter.holder> {
             }
         }
         else{
-            text=String.valueOf(traintiles.get(position).GetSide1())+ "--"+ String.valueOf(traintiles.get(position).GetSide2());
+            text=String.valueOf(traintiles.get(position).GetSide1())+ "-"+ String.valueOf(traintiles.get(position).GetSide2());
         }
 
         holder.tilename.setText(text);

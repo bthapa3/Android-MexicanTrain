@@ -9,7 +9,14 @@ public class Player {
     //this checks if the valid tile was played
     private boolean m_validtileplayed=false;
     private boolean m_replay=false;
+    private int m_continousturns=0;
 
+    public int GetContinousturns(){
+        return m_continousturns;
+    }
+    public void SetContinousturns(int value){
+        m_continousturns=value;
+    }
     public void SetQuitGame(boolean value){
         m_quitgame=value;
     }
@@ -167,7 +174,7 @@ public class Player {
     {
 
         //if there is more tiles left
-        if (a_boneyard.size() != 0) {
+        if (a_boneyard.size() > 0) {
             Tile boneyardfront = a_boneyard.get(0);
             a_boneyard.remove(0);
             AddtoBack(boneyardfront);
@@ -185,13 +192,13 @@ public class Player {
     public boolean ValidsecondDouble(Vector<Train> a_trainslist, Train a_chosentrain, Tile a_newtile)
     {
         Tile usertrainTop, computertrainTop, mexicantrainTop;
-        if (a_chosentrain.trainType() == "usertrain") {
+        if (a_chosentrain.trainType() == "Human") {
 
             usertrainTop = a_newtile;
             computertrainTop = a_trainslist.get(1).GetTop();
             mexicantrainTop = a_trainslist.get(2).GetTop();
         }
-        else if (a_chosentrain.trainType() == "computertrain") {
+        else if (a_chosentrain.trainType() == "Computer") {
 
             usertrainTop = a_trainslist.get(0).GetTop();
             computertrainTop = a_newtile;
@@ -366,7 +373,7 @@ public class Player {
     }
 
     //this function passes object by reference
-    public boolean Playopponenttrain( Vector <Train> a_trainslist, Train a_opponentTrain, StringBuilder a_tilenumber, StringBuilder  a_train )
+    public boolean Canplayopponenttrain( Vector <Train> a_trainslist, Train a_opponentTrain, StringBuilder a_tilenumber, StringBuilder  a_train )
     {
 
         //opponent train is just a copy and not reference as it is used for searching a double tile and not modyfying it.
@@ -395,52 +402,56 @@ public class Player {
         if (opponentplayable) {
             //should be able to play double on the user train and non double on any other train.
             if (CanPlayDouble(a_trainslist.get(0))) {
-                if (CanPlayNonDouble(a_trainslist.get(1)) || CanPlayNonDouble(a_trainslist.get(2))) {
+                if (CanPlayNonDouble(a_trainslist.get(1))|| CanPlayNonDouble(a_trainslist.get(0)) || CanPlayNonDouble(a_trainslist.get(2))) {
                     a_tilenumber.append(GetPlayableDouble(a_trainslist.get(0)));
                     a_train.append("Human");
                     return true;
                 }
             }
-		else if (CanPlayDouble(a_trainslist.get(1))) {
-                if (CanPlayNonDouble(a_trainslist.get(0)) || CanPlayNonDouble(a_trainslist.get(2))) {
+		    else if (CanPlayDouble(a_trainslist.get(1))) {
+                if (CanPlayNonDouble(a_trainslist.get(0)) ||CanPlayNonDouble(a_trainslist.get(1))||  CanPlayNonDouble(a_trainslist.get(2))) {
                     a_tilenumber.append(GetPlayableDouble(a_trainslist.get(1)));
                     a_train.append("Computer");
                     return true;
                 }
             }
-		else if (CanPlayDouble(a_trainslist.get(2))) {
-                if (CanPlayNonDouble(a_trainslist.get(0)) || CanPlayNonDouble(a_trainslist.get(1))) {
+		    else if (CanPlayDouble(a_trainslist.get(2))) {
+                if (CanPlayNonDouble(a_trainslist.get(0)) ||CanPlayNonDouble(a_trainslist.get(2)) || CanPlayNonDouble(a_trainslist.get(1))) {
                     a_tilenumber.append(GetPlayableDouble(a_trainslist.get(2)));
                     a_train.append("Mexican");
                     return true;
                 }
             }
-		else {
+		    else {
                 return false;
             }
         }
         else {
-            if (a_opponentTrain.trainType() == "computertrain") {
+            if (a_opponentTrain.trainType().equals("Computer")) {
 
-                if (CanPlayDouble(a_trainslist.get(0))  && CanPlayNonDouble(a_trainslist.get(2))) {
+                if (CanPlayDouble(a_trainslist.get(0))  && (CanPlayNonDouble(a_trainslist.get(2))  || CanPlayNonDouble(a_trainslist.get(0))))
+                {
                     a_tilenumber.append(GetPlayableDouble(a_trainslist.get(0)));
                     a_train.append("Human");
                     return true;
                 }
-			else if (CanPlayDouble(a_trainslist.get(2))  && CanPlayNonDouble(a_trainslist.get(0))) {
+			    else if (CanPlayDouble(a_trainslist.get(2))  && ( CanPlayNonDouble(a_trainslist.get(0)) || CanPlayNonDouble(a_trainslist.get(2))))
+			    {
                     a_tilenumber.append(GetPlayableDouble(a_trainslist.get(2)));
                     a_train.append("Mexican");
                     return true;
                 }
 
             }
-            else if (a_opponentTrain.trainType()=="usertrain") {
-                if (CanPlayDouble(a_trainslist.get(1)) && CanPlayNonDouble(a_trainslist.get(2))) {
+            else if (a_opponentTrain.trainType().equals("Human")) {
+                if (CanPlayDouble(a_trainslist.get(1)) && (CanPlayNonDouble(a_trainslist.get(2)) || CanPlayNonDouble(a_trainslist.get(1))))
+                {
                     a_tilenumber.append(GetPlayableDouble(a_trainslist.get(1)));
                     a_train.append("Computer");
                     return true;
                 }
-			else if (CanPlayDouble(a_trainslist.get(2)) && CanPlayNonDouble(a_trainslist.get(1))) {
+			    else if (CanPlayDouble(a_trainslist.get(2)) && (CanPlayNonDouble(a_trainslist.get(1)) || CanPlayNonDouble(a_trainslist.get(2)) )  )
+			    {
                     a_tilenumber.append(GetPlayableDouble(a_trainslist.get(2)));
                     a_train.append("Mexican");
                     return true;
@@ -459,6 +470,15 @@ public class Player {
         if (CanPlayinTrain(a_trainslist.get(2))) {
             a_tilenumber.append(GetPlayableTile(a_trainslist.get(2)));
             a_train = a_trainslist.get(2);
+            return true;
+        }
+        return false;
+    }
+    public boolean PlayOpponentTrain(Vector <Train>  a_trainslist, StringBuilder a_tilenumber, Train a_opponenttrain)
+    {
+        if (CanPlayinTrain(a_opponenttrain)) {
+            a_tilenumber.append(GetPlayableTile(a_opponenttrain));
+            //a_train = a_trainslist.get(2);
             return true;
         }
         return false;

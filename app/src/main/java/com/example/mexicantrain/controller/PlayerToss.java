@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.mexicantrain.R;
 
@@ -18,7 +19,8 @@ public class PlayerToss extends AppCompatActivity {
     private ImageView m_heads, m_tails;
     private Button m_continue;
     private TextView m_displayresult;
-    private boolean m_humannext;
+    private boolean m_humannext=false;
+    private Integer m_nextroundnumber, m_humangamescore, m_computergamescore;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +33,20 @@ public class PlayerToss extends AppCompatActivity {
         Random rand = new Random();
         //generates number between 0 and 1;lets assume 0 is heads and 1 is tails.
         int value = rand.nextInt(2);
+
+        Bundle bundle = getIntent().getExtras();
+        if(bundle != null){
+            //This helps to display the right types of files the admin is looking for
+            //File types are insurance or Covid-19 results.
+            m_nextroundnumber = bundle.getInt("Roundnumber");
+            m_humangamescore=bundle.getInt("Humanscore");
+            m_computergamescore=bundle.getInt("Computerscore");
+            //This decides if new round will be played or what happens
+        }
+        else{
+            //this is an invalid path. There must be a bundle value to play the round.
+            Toast.makeText(this,"There was null", Toast.LENGTH_SHORT);
+        }
 
         m_heads.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,7 +74,7 @@ public class PlayerToss extends AppCompatActivity {
                 m_continue.setVisibility(View.VISIBLE);
                 m_displayresult.setVisibility(View.VISIBLE);
                 if(value==1){
-                    m_displayresult.setText("You picked tails and toss value was tails so  you won the toss.");
+                    m_displayresult.setText("You picked tails and toss value was tails so you won the toss.");
                     m_humannext=true;
                 }
                 else{
@@ -73,6 +89,9 @@ public class PlayerToss extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), PlayRound.class);
                 intent.putExtra("newround",true);
                 intent.putExtra("humannext", m_humannext);
+                intent.putExtra("Roundnumber",m_nextroundnumber+1);
+                intent.putExtra("Humanscore",m_humangamescore);
+                intent.putExtra("ComputerScore",m_computergamescore);
                 startActivity(intent);
                 finish();
             }

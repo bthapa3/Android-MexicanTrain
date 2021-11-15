@@ -1,8 +1,12 @@
 package com.example.mexicantrain.model;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.telephony.mbms.MbmsErrors;
+
+import com.example.mexicantrain.controller.PlayRound;
+import com.example.mexicantrain.controller.StartGame;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,9 +24,19 @@ public class Game {
     private int m_currentround;
     private boolean m_initializedfromfile;
 
+
     //new round object
     private Round m_newround=null;
 
+    public int GetcurrentroundNum(){
+        return m_currentround;
+    }
+    public void SetRoundNum(int value){
+        m_currentround=value;
+    }
+    public void IncreaseRoundnum(){
+        m_currentround=m_currentround+1;
+    }
     public Game()
     {
         m_humanfirst = false;
@@ -44,6 +58,18 @@ public class Game {
         ReadfromFile(a_filepath);
     };
 
+    public int GetHumanGamescore(){
+        return m_humanscore;
+    }
+    public int GetComputerGamescore(){
+        return m_computerscore;
+    }
+    public void AddHumanScore(int value){
+        m_humanscore=m_humanscore+value;
+    }
+    public void AddComputerScore(int value){
+        m_computerscore=m_computerscore+value;
+    }
     public void addComputerscore(int a_score) {
         m_computerscore = m_computerscore + a_score;
     }
@@ -191,5 +217,6 @@ public class Game {
     public Round GetRound(){
         return m_newround;
     }
+
 }
 

@@ -56,9 +56,10 @@ public class StartGame extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(),PlayerToss.class);
-                intent.putExtra("newround",true);
-                intent.putExtra("humanscore",0);
-                intent.putExtra("computerscore",0);
+                intent.putExtra("Firstround",true);
+                intent.putExtra("Humanscore",0);
+                intent.putExtra("Computerscore",0);
+                intent.putExtra( "Roundnumber", 0);
                 startActivity(intent);
                 finish();
             }

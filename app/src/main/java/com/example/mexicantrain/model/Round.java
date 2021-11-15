@@ -1,14 +1,22 @@
 package com.example.mexicantrain.model;
 
 import android.net.Uri;
+import android.os.Environment;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.util.Vector;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class Round {
 
@@ -29,7 +37,13 @@ public class Round {
     //User player and the computer player
     private Vector<Player> m_playersList=new Vector<>();
     private boolean m_humannext=false;
-
+    public int Humanscore(){
+        return m_humanroundscore;
+    }
+    public int Computerscore()
+    {
+        return m_computerroundscore;
+    }
     private boolean m_gameover;
     private int m_humanroundscore;
     private int m_computerroundscore;
@@ -73,17 +87,17 @@ public class Round {
         m_boneyardTiles = mydeck.GetBoneyardTiles();
 
         //user train object
-        Train humantrain=new Train("humantrain");
+        Train humantrain=new Train("Human");
         m_trainsList.add(humantrain);
         m_trainsList.get(0).Addtile(m_engineTile);
 
         //computer train object
-        Train computertrain=new Train("computertrain");
+        Train computertrain=new Train("Computer");
         m_trainsList.add(computertrain);
         m_trainsList.get(1).Addtile(m_engineTile);
 
         //computer train object
-        Train mexicantrain=new Train("mexicantrain");
+        Train mexicantrain=new Train("Mexican");
         m_trainsList.add(mexicantrain);
         m_trainsList.get(2).Addtile(m_engineTile);
 
@@ -128,19 +142,19 @@ public class Round {
         m_boneyardTiles = a_boneyardtiles;
 
         //user train object
-        Train humantrain=new Train("humantrain");
+        Train humantrain=new Train("Human");
         m_trainsList.add(humantrain);
         m_trainsList.get(0).SetallTiles(a_humantrain);
 
         //computer train object
-        Train computertrain=new Train("computertrain");
+        Train computertrain=new Train("Computer");
         m_trainsList.add(computertrain);
         m_trainsList.get(1).SetallTiles(a_computertrain);
 
 
 
         //computer train object
-        Train mexicantrain=new Train("mexicantrain");
+        Train mexicantrain=new Train("Mexican");
         m_trainsList.add(mexicantrain);
         m_trainsList.get(2).SetallTiles(a_mexicantrain);
         //is human the first player to start the game.
@@ -183,6 +197,9 @@ public class Round {
             m_humannext=true;
             m_boneyardTiles.add(0,m_playersList.get(0).GetTiles().lastElement());
             m_playersList.get(0).RemoveTile(m_playersList.get(0).GetTiles().size()-1);
+        }
+        else{
+            m_trainsList.get(0).RemoveMark();
         }
 
         return played;
@@ -254,14 +271,22 @@ public class Round {
         //PlayMove(Vector <Train> trainslist, Vector<Tile> boneyard, int continuedmove)
 
         StringBuilder response= new StringBuilder("");
-        boolean played=m_playersList.get(1).PlayMove(m_trainsList, m_boneyardTiles,m_continousplay, -1, null,response );
+        m_playersList.get(1).SetReplay(false);
+        boolean played=m_playersList.get(1).PlayMove(m_trainsList, m_boneyardTiles,m_playersList.get(1).GetContinousturns(), -1, null,response );
 
-        if(played){
+        if(played && (m_playersList.get(1).Getreplay()==false)){
+            m_playersList.get(1).SetContinousturns(0);
             m_humannext=true;
             a_response.append(response);
         }
+        if(m_playersList.get(1).Getreplay()==true){
+            response.append("\nComputer gets one more chance to play as double tile was played");
+            m_playersList.get(1).SetReplay(false);
+            m_playersList.get(1).SetContinousturns(m_playersList.get(1).GetContinousturns()+1);
+            a_response.append(response);
+        }
         else{
-            response.append("Computer failed to play this move");
+            response.append("Computer failed to play this move or got a chance");
         }
         if(m_playersList.get(0).Getquitgame() == true){
             //Must serialize and quit here.
@@ -293,7 +318,7 @@ public class Round {
     {
         // if both user trains are marked and boneyard is empty.
         if (m_boneyardTiles.size() == 0 && m_trainsList.get(0).isTrainMarked() && m_trainsList.get(1).isTrainMarked()) {
-        return false;
+            return false;
         }
         //if one of the player has emptied his hands.
         else if ((m_playersList.get(0).GetTiles().size() == 0) || (m_playersList.get(1).GetTiles().size() == 0))
@@ -308,6 +333,49 @@ public class Round {
     public int getContinuePlayed(){
         return m_continousplay;
     }
+
+    public String SerializeandQuit(int humanscore, int computerscore) {
+        String mycontent="";
+        // Write to the file
+        mycontent=mycontent+ "Round: " + m_currentRound+"\n\n"+ "Computer:\n"+ "   Score: " + computerscore +"\n";
+        mycontent=mycontent+ "   Hand: ";
+
+        for (int i = 0; i < m_playersList.get(0).GetTiles().size();i++) {
+            mycontent=mycontent+ (m_playersList.get(0).GetTiles().get(i).GetSide1()) + "-" + m_playersList.get(0).GetTiles().get(i).GetSide2() + " ";
+        }
+        mycontent=mycontent+ "\n"+ "   Train: ";
+        if (m_trainsList.get(1).isTrainMarked()) mycontent=mycontent+ "M ";
+        for (int i = m_trainsList.get(1).GetAllTiles().size() - 1; i >= 0; i--) {
+            mycontent=mycontent+ (m_trainsList.get(1).GetAllTiles().get(i).GetSide2()) + "-" + (m_trainsList.get(1).GetAllTiles().get(i).GetSide1()) + " ";
+        }
+
+        mycontent=mycontent+ "\n"+"Human:\n"+"   Score: " + humanscore +"\n"+"   Hand: ";
+        for (int i = 0; i < m_playersList.get(1).GetTiles().size(); i++) {
+            mycontent=mycontent+ m_playersList.get(1).GetTiles().get(i).GetSide1() + "-" + m_playersList.get(1).GetTiles().get(i).GetSide2() + " ";
+        }
+        mycontent=mycontent+ "\n"+ "   Train: ";
+        for (int i = 0; i< m_trainsList.get(0).GetAllTiles().size() ; i ++) {
+             mycontent=mycontent+ m_trainsList.get(0).GetAllTiles().get(i).GetSide1() + "-" + m_trainsList.get(0).GetAllTiles().get(i).GetSide2()+ " ";
+        }
+        if (m_trainsList.get(0).isTrainMarked()) mycontent=mycontent+ "M";
+        mycontent=mycontent+"\n\n"+"Mexican Train: ";
+        for (int i = 1; i < m_trainsList.get(2).GetAllTiles().size(); i++) {
+            mycontent=mycontent+ m_trainsList.get(2).GetAllTiles().get(i).GetSide1() + "-" + m_trainsList.get(2).GetAllTiles().get(i).GetSide2() + " ";
+        }
+        mycontent=mycontent+ "\n\n"+"Boneyard: ";
+        for (int i = 0; i <m_boneyardTiles.size(); i++) {
+            mycontent=mycontent + m_boneyardTiles.get(i).GetSide1() + "-" + (m_boneyardTiles.get(i).GetSide2()) + " ";
+        }
+        mycontent=mycontent+  "\n\n";
+        if(m_humannext){
+            mycontent=mycontent+"Next Player: Human";
+        }
+        else{
+            mycontent=mycontent+"Next Player: Computer";
+        }
+        return mycontent;
+    }
+
 
 }
 

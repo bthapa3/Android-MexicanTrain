@@ -1,5 +1,6 @@
 package com.example.mexicantrain.model;
 
+import java.util.Set;
 import java.util.Vector;
 
 public class Computer extends Player {
@@ -21,20 +22,24 @@ public class Computer extends Player {
         if (continuedmove == 0 && OrphanDoublePresent(trainslist)) {
             traintype=GetOrphanTrain(trainslist);
             //move to the orphan double train as needed.
-            if (traintype == 'U' && (checkOrphanandMove(trainslist, trainslist.get(0) ,a_response))) return true;
+            if (traintype == 'H' && (checkOrphanandMove(trainslist, trainslist.get(0) ,a_response))) return true;
             if (traintype == 'M' && (checkOrphanandMove(trainslist,  trainslist.get( 2) ,a_response))) return true;
             if (traintype == 'C' && (checkOrphanandMove(trainslist,  trainslist.get(1) ,a_response))) return true;
 
-
             if(boneyard.size()>0){
                 String Tileadded=boneyard.get(0).Stringified();
-                a_response.append(" Placed a boneyard tile to computer tiles list in this case. Tile added"+ Tileadded);
                 AddtoBack(boneyard.get(0));
                 boneyard.remove(0);
+                if(BoneyardtoTrain(trainslist,a_response)){
+                   // a_response.append("\nTile was picked from boneyard as no valid tiles were present: " + Tileadded);
+                    return true;
+                };
+                a_response.append("Placed a boneyard tile to computer tiles list as it could not play on orphan double train. Tile added"+ Tileadded);
+                trainslist.get(1).MarkTrain();
                 return  true;
             }
             else{
-                System.out.println("Out of index error");
+                a_response.append("No more tiles left on the list of boneyard tiles");
             }
         }
 
@@ -45,7 +50,7 @@ public class Computer extends Player {
             String numbervalue=mytilenumber.toString();
             tilenumber= Integer.parseInt(numbervalue);
             String tile=  String.valueOf(GetTile(tilenumber-1).GetSide1())+"-"+String.valueOf(GetTile(tilenumber-1).GetSide2());
-            a_response.append("Played tile "+ tile + "to the Mexican train as it starts the mexican train");
+            a_response.append("Computer played tile "+ tile + "to the Mexican train as it starts the mexican train");
             MoveTiletoTrain(trainslist, tilenumber, traintoplay.toString());
             return true;
         }
@@ -55,121 +60,153 @@ public class Computer extends Player {
         StringBuilder stringtilenumber_1=new StringBuilder("");
         StringBuilder trainname= new StringBuilder("");
         //check if you can force other player to play orphan double train & orphan double cannot be played more than two times.
-        if (PlayOrphanDoublemove(trainslist, stringtilenumber_1, trainname,  trainslist.get(1)) && continuedmove < 2) {
+        if (PlayOrphanDoublemove(trainslist, stringtilenumber_1, trainname,  trainslist.get(0)) && continuedmove < 2) {
             tilenumber=  Integer.parseInt(stringtilenumber_1.toString());
-            Tile mytile = GetTiles().get(tilenumber);
+            Tile mytile = GetTiles().get(tilenumber-1);
             traintoplay= new StringBuilder("");
             if ((continuedmove == 0) || (continuedmove == 1 && ValidsecondDouble(trainslist, train, mytile))) {
                 String tile=  String.valueOf(GetTile(tilenumber-1).GetSide1())+"-"+String.valueOf(GetTile(tilenumber-1).GetSide2());
-                a_response.append("Play tile "+ tile + "to the " + trainname.toString() +"it forces opponent to play orphan double train");
+                a_response.append("Computer played tile "+ tile + "to the " + trainname.toString() +"Train as it forces opponent to play orphan double train");
                 MoveTiletoTrain(trainslist, tilenumber, trainname.toString());
+                SetReplay(true);
                 return true;
             }
-        }
 
-        // second argument trainslist.get(1) is the train of the opponent player as current player is computer.
-        //This is a new object because append is used instead of rewriting the value.
-        StringBuilder stringtilenumber_2=new StringBuilder("");
-        traintoplay= new StringBuilder("");
-        if (Playopponenttrain(trainslist,  trainslist.get(1), stringtilenumber_2, traintoplay)) {
-            tilenumber=  Integer.parseInt(stringtilenumber_2.toString()) - 1;
-            String tile=  String.valueOf(GetTile(tilenumber).GetSide1())+"-"+String.valueOf(GetTile(tilenumber).GetSide2());
-            a_response.append("Play tile "+ tile + "to the " + traintoplay.toString() +"as the opponent train has marker");
-            MoveTiletoTrain(trainslist, tilenumber, traintoplay.toString());
-            return true;
         }
 
 
         Integer mexicantile, mexicansum, selftile, selfsum;
         Train mexicantrain, selftrain;
-        StringBuilder stringtilenumber_3=new StringBuilder("");
-        boolean can_playmexican = PlayMexicanTrain(trainslist, stringtilenumber_3, train);
-        if (can_playmexican) {
-            mexicantile = Integer.parseInt(stringtilenumber_3.toString());
-            mexicansum = GetTiles().get(mexicantile - 1).GetSide1() + GetTiles().get(mexicantile - 1).GetSide2();
-            mexicantrain = train;
-        }
-        StringBuilder stringtilenumber_4=new StringBuilder("");
-        boolean can_playself = PlaySelfTrain(trainslist, stringtilenumber_4, trainslist.get(0));
-        if (can_playself) {
-            selftile = Integer.parseInt(stringtilenumber_4.toString());
-            selfsum = GetTiles().get(selftile - 1).GetSide1() + GetTiles().get(selftile - 1).GetSide2();
-            selftrain = trainslist.get(0);
-        }
+        StringBuilder MexicanTile=new StringBuilder("");
+        boolean can_playmexican = PlayMexicanTrain(trainslist, MexicanTile, train);
+
+        StringBuilder SelfTile=new StringBuilder("");
+        boolean can_playself = PlaySelfTrain(trainslist, SelfTile, trainslist.get(1));
+
+        // second argument trainslist.get(1) is the train of the Human player as current player is Computer.
+        //This is a new object because append is used instead of rewriting the value.
+        StringBuilder OpponentTile=new StringBuilder("");
+        traintoplay=new StringBuilder("");
+        boolean can_playopponent=Canplayopponenttrain(trainslist,  trainslist.get(0), OpponentTile, traintoplay);
+
 
         //if orphandouble is possible try no to play self train as long  as possible
-        //in case of orphan train on opponent this is skipped.
+        //in ase of orphan train on opponent this is skipped.
         if (continuedmove == 1) {
             OrphanDoublePresent(trainslist);
             traintype=GetOrphanTrain(trainslist);
-            if (traintype == 'H' && can_playmexican) {
-                tilenumber=  Integer.parseInt(stringtilenumber_3.toString()) -1;
-                String tile=  String.valueOf(GetTile(tilenumber).GetSide1())+"-"+String.valueOf(GetTile(tilenumber).GetSide2());
-                a_response.append("Play tile "+ tile + " to the mexican train as it is the largest possible tile to play and helps for orphan double");
+            //(traintype == 'H' || traintype=='C') && can_playmexican
+            if ((traintype == 'H' || traintype=='C') && can_playmexican) {
+                tilenumber=  Integer.parseInt(MexicanTile.toString());
+                String tile=  String.valueOf(GetTile(tilenumber-1).GetSide1())+"-"+String.valueOf(GetTile(tilenumber-1).GetSide2());
+                a_response.append("Computer played tile "+ tile + " to the mexican train as it is the largest possible tile to play and helps for orphan double");
+                SetRepeating(tilenumber);
                 MoveTiletoTrain(trainslist, tilenumber, "Mexican");
                 return true;
-
             }
-            else if (traintype == 'M' && can_playself) {
-                tilenumber=  Integer.parseInt(stringtilenumber_4.toString())-1 ;
-                String tile=  String.valueOf(GetTile(tilenumber).GetSide1())+"-"+String.valueOf(GetTile(tilenumber).GetSide2());
-                a_response.append("Play tile "+ tile + " to the human train as it is the largest possible tile to play and helps for orphan double");
+            else if((traintype =='C' || traintype=='M') && (can_playopponent && trainslist.get(0).isTrainMarked())  ){
+                tilenumber=  Integer.parseInt(OpponentTile.toString()) ;
+                String tile=  String.valueOf(GetTile(tilenumber-1).GetSide1())+"-"+String.valueOf(GetTile(tilenumber-1).GetSide2());
+                a_response.append("Computer played tile "+ tile + " to the Human train as Human train is marked and helps for orphan double");
+                SetRepeating(tilenumber);
                 MoveTiletoTrain(trainslist, tilenumber, "Human");
                 return true;
             }
-        }
-
-        if (can_playmexican && can_playself) {
-            selftile=Integer.parseInt(stringtilenumber_4.toString());
-            mexicantile=Integer.parseInt(stringtilenumber_3.toString()) -1;
-            selfsum= GetTiles().get(selftile - 1).GetSide1() + GetTiles().get(selftile - 1).GetSide2();
-            mexicansum=GetTiles().get(mexicantile - 1).GetSide1() + GetTiles().get(mexicantile - 1).GetSide2();
-            if(selfsum >= mexicansum){
-                tilenumber=  Integer.parseInt(stringtilenumber_4.toString())-1;
-                String tile=  String.valueOf(GetTile(tilenumber).GetSide1())+"-"+String.valueOf(GetTile(tilenumber).GetSide2());
-                a_response.append("Play tile "+ tile + " to the Computer train as it is the largest possible tile to play");
+            else if ((traintype == 'M'||  traintype=='H') && can_playself) {
+                tilenumber=  Integer.parseInt(SelfTile.toString());
+                String tile=  String.valueOf(GetTile(tilenumber-1).GetSide1())+"-"+String.valueOf(GetTile(tilenumber-1).GetSide2());
+                a_response.append("Computer played tile "+ tile + " to the Computer train as it is the largest possible tile to play and helps for orphan double");
+                SetRepeating(tilenumber);
                 MoveTiletoTrain(trainslist, tilenumber, "Computer");
                 return true;
             }
         }
-        if( (can_playself && !can_playmexican)){
-            tilenumber=  Integer.parseInt(stringtilenumber_4.toString()) -1;
-            String tile=  String.valueOf(GetTile(tilenumber).GetSide1())+"-"+String.valueOf(GetTile(tilenumber).GetSide2());
-            a_response.append("Play tile "+ tile + " to the Computer train as it is the largest possible tile to play");
-            MoveTiletoTrain(trainslist, tilenumber, "Computer");
+
+        if (can_playopponent) {
+            tilenumber=  Integer.parseInt(OpponentTile.toString()) ;
+            String tile=  String.valueOf(GetTile(tilenumber-1).GetSide1())+"-"+String.valueOf(GetTile(tilenumber-1).GetSide2());
+            a_response.append("Computer played tile "+ tile + "to the " + traintoplay.toString() +" as the opponent train has marker");
+            MoveTiletoTrain(trainslist, tilenumber, traintoplay.toString());
+            SetRepeating(tilenumber);
             return true;
         }
+
+        if (can_playmexican && can_playself) {
+            selftile=Integer.parseInt(SelfTile.toString());
+            mexicantile=Integer.parseInt(MexicanTile.toString());
+            selfsum= GetTiles().get(selftile - 1).GetSide1() + GetTiles().get(selftile - 1).GetSide2();
+            mexicansum=GetTiles().get(mexicantile - 1).GetSide1() + GetTiles().get(mexicantile - 1).GetSide2();
+            if(selfsum >= mexicansum){
+                tilenumber=  Integer.parseInt(SelfTile.toString());
+                String tile=  String.valueOf(GetTile(tilenumber-1).GetSide1())+"-"+String.valueOf(GetTile(tilenumber-1).GetSide2());
+                a_response.append("Computer played tile "+ tile + " to the Computer train as it is the largest possible tile to play");
+                SetRepeating(tilenumber);
+                MoveTiletoTrain(trainslist, tilenumber, "Computer");
+                return true;
+            }
+        }
         if (can_playmexican && can_playself)   {
-            selftile=Integer.parseInt(stringtilenumber_4.toString());
-            mexicantile=Integer.parseInt(stringtilenumber_3.toString()) ;
+            selftile=Integer.parseInt(SelfTile.toString());
+            mexicantile=Integer.parseInt(MexicanTile.toString()) ;
             selfsum= GetTiles().get(selftile - 1).GetSide1() + GetTiles().get(selftile - 1).GetSide2();
             mexicansum=GetTiles().get(mexicantile - 1).GetSide1() + GetTiles().get(mexicantile - 1).GetSide2();
             if(selfsum < mexicansum){
-                tilenumber= Integer.parseInt(stringtilenumber_3.toString());
-                String tile=  String.valueOf(GetTile(tilenumber).GetSide1())+"-"+String.valueOf(GetTile(tilenumber).GetSide2());
-                a_response.append("Play tile "+ tile + " to the mexican train as it is the largest possible tile to play");
+                tilenumber= Integer.parseInt(MexicanTile.toString());
+                String tile=  String.valueOf(GetTile(tilenumber-1).GetSide1())+"-"+String.valueOf(GetTile(tilenumber-1).GetSide2());
+                a_response.append("Computer played tile "+ tile + " to the mexican train as it is the largest possible tile to play");
+                SetRepeating(tilenumber);
                 MoveTiletoTrain(trainslist, tilenumber, "Mexican");
                 return true;
             }
         }
+        if( (can_playself && !can_playmexican)){
+            tilenumber=  Integer.parseInt(SelfTile.toString()) ;
+            String tile=  String.valueOf(GetTile(tilenumber-1).GetSide1())+"-"+String.valueOf(GetTile(tilenumber-1).GetSide2());
+            a_response.append("Computer played tile "+ tile + " to the Computer train as it is the largest possible tile to play");
+            SetRepeating(tilenumber);
+            MoveTiletoTrain(trainslist, tilenumber, "Computer");
+            return true;
+        }
 
         if(!can_playself && can_playmexican){
-            tilenumber= Integer.parseInt(stringtilenumber_3.toString()) -1;
-            String tile=  String.valueOf(GetTile(tilenumber).GetSide1())+"-"+String.valueOf(GetTile(tilenumber).GetSide2());
-            a_response.append("Play tile "+ tile + " to the mexican train as it is the largest possible tile to play");
+            tilenumber= Integer.parseInt(MexicanTile.toString());
+            String tile=  String.valueOf(GetTile(tilenumber-1).GetSide1())+"-"+String.valueOf(GetTile(tilenumber-1).GetSide2());
+            a_response.append("Computer played tile "+ tile + " to the mexican train as it is the largest possible tile to play");
+            SetRepeating(tilenumber);
             MoveTiletoTrain(trainslist, tilenumber, "Mexican");
             return  true;
         }
         else {
 
-            a_response.append("You donot have any valid tiles to play. So pick a tile from boneyard to continue");
+            //if tile was present on boneyard and picked try to place on the user train.
+            String Tileadded=boneyard.get(0).Stringified();
+            if (PickBoneyard(boneyard, trainslist.get(1))) {
+                if(boneyard.size()>0){
+                    a_response.append("Boneyard tile picked\n");
+                    if(BoneyardtoTrain(trainslist, a_response)){
+                        return true;
+                    }
+                    else{
+                        a_response.append("Tile:" + Tileadded + " was picked from the boneyard");
+                        a_response.append(" and was added to computers list of tiles.Computer train marked!!");
+
+                    }
+                }
+                return true;
+            }
+            else {
+               // cout << "Boneyard had no tiles. so just train is marked." << endl;
+                a_response.append("There are no more boneyard tiles left in the boneyard so Train is marked and the turn is passed.");
+            }
+
+
             return true;
 
         }
     }
 
 
-    public void BoneyardtoTrain(Vector<Train> a_trainslist, boolean a_replay)
+    public boolean BoneyardtoTrain(Vector<Train> a_trainslist, StringBuilder a_response)
     {
         Tile last_tile = GetTiles().get(GetTiles().size() - 1);
         char train='X';
@@ -178,10 +215,11 @@ public class Computer extends Player {
             if (train == 'H') {
                 if (CanPlayinTrain(a_trainslist.get(0))) {
                     int tile_number = GetPlayableTile(a_trainslist.get(0));
-                    SetRepeating(a_replay, tile_number);
-                    DisplayTileMove(tile_number, a_trainslist.get(0), "boneyard tile matched with orphan double train");
+                    SetRepeating(tile_number);
+                    DisplayTileMove(tile_number, a_trainslist.get(0), "boneyard tile matched with orphan double train",a_response);
+                    //a_response.append("Train chosen: Human Train\n");
                     MoveTiletoTrain(a_trainslist, tile_number, "Human");
-                    return;
+                    return true;
 
                 }
 			else {
@@ -191,10 +229,11 @@ public class Computer extends Player {
             else if (train == 'C') {
                 if (CanPlayinTrain(a_trainslist.get(1))) {
                     int tile_number = GetPlayableTile(a_trainslist.get(1));
-                    SetRepeating(a_replay, tile_number);
-                    DisplayTileMove(tile_number,a_trainslist.get(1), "boneyard tile matched with orphan double train");
+                    SetRepeating(tile_number);
+                    DisplayTileMove(tile_number,a_trainslist.get(1), "boneyard tile matched with orphan double train", a_response);
+                    a_response.append("Train chosen: Computer Train\n");
                     MoveTiletoTrain(a_trainslist, tile_number, "Computer");
-                    return;
+                    return true;
                 }
 			else {
                     //DisplayandContinue();
@@ -203,10 +242,11 @@ public class Computer extends Player {
             else if (train == 'M') {
                 if (CanPlayinTrain(a_trainslist.get(2))) {
                     int tile_number = GetPlayableTile(a_trainslist.get(2));
-                    SetRepeating(a_replay, tile_number);
-                    DisplayTileMove(tile_number,a_trainslist.get(2), "boneyard tile matched with orphan double train");
+                    SetRepeating(tile_number);
+                    DisplayTileMove(tile_number,a_trainslist.get(2), "boneyard tile matched with orphan double train", a_response);
+                    //a_response.append("Train chosen: Mexican Train\n");
                     MoveTiletoTrain(a_trainslist, tile_number, "Mexican");
-                    return;
+                    return true;
                 }
 			else {
                    // DisplayandContinue();
@@ -217,33 +257,34 @@ public class Computer extends Player {
             //priority player train(opponent)
             if (a_trainslist.get(0).isTrainMarked() && CanPlayinTrain(a_trainslist.get(0))) {
                 int tile_number = GetPlayableTile(a_trainslist.get(0));
-                SetRepeating(a_replay, tile_number);
-                DisplayTileMove(tile_number, a_trainslist.get(0), "boneyard tile matched with opponent train");
+                SetRepeating( tile_number);
+                DisplayTileMove(tile_number, a_trainslist.get(0), "boneyard tile matched with opponent train", a_response);
                 MoveTiletoTrain(a_trainslist, tile_number, "Human");
-                return;
+                return true;
 
             }
             // than play mexican train
-		else if (CanPlayinTrain(a_trainslist.get(2))) {
+		    else if (CanPlayinTrain(a_trainslist.get(2))) {
                 int tile_number = GetPlayableTile(a_trainslist.get(2));
-                SetRepeating(a_replay, tile_number);
-                DisplayTileMove(tile_number, a_trainslist.get(2), "boneyard tile matched with mexican train");
+                SetRepeating(tile_number);
+                DisplayTileMove(tile_number, a_trainslist.get(2), "boneyard tile matched with mexican train", a_response);
                 MoveTiletoTrain(a_trainslist, tile_number, "Mexican");
-                return;
+                return true;
             }
             //play computer train at the end(self train)
-		else if (CanPlayinTrain(a_trainslist.get(1))) {
+		    else if (CanPlayinTrain(a_trainslist.get(1))) {
                 int tile_number = GetPlayableTile(a_trainslist.get(1));
-                SetRepeating(a_replay, tile_number);
-                DisplayTileMove(tile_number, a_trainslist.get(1), "boneyard tile matched with self train");
+                SetRepeating( tile_number);
+                DisplayTileMove(tile_number, a_trainslist.get(1), "boneyard tile matched with Computer train", a_response);
                 MoveTiletoTrain(a_trainslist, tile_number, "Computer");
-                return;
+                return true;
             }
-		else {
-                //cout << "The boneyard train doesnot match any train so could not be placed anywhere!" << endl;
-               // DisplayandContinue();
+		    else {
+		        return false;
             }
+
         }
+        return false;
     }
 
     public boolean checkOrphanandMove(Vector<Train>  a_trainslist,Train  a_train, StringBuilder a_response)
@@ -252,7 +293,8 @@ public class Computer extends Player {
         if (CanPlayinTrain(a_train)) {
 
             int tilenumber = GetPlayableTile(a_train);
-            a_response.append("Tile moved to orphan double train");
+            String Tile=GetTile(tilenumber-1).Stringified();
+            a_response.append("Tile: " + Tile+ " moved to the " + a_train.trainType()+ " Train as it is the orphan double train");
             //DisplayTileMove(tilenumber, a_train, "it was the orphan double train");
             MoveTiletoTrain(a_trainslist, tilenumber,a_train.trainType());
             return true;
@@ -260,23 +302,17 @@ public class Computer extends Player {
         return false;
     }
 
-    public void DisplayTileMove(int a_tilenumber, Train a_train, String a_goal)
+    public void DisplayTileMove(int a_tilenumber, Train a_train, String a_goal,StringBuilder a_response)
     {
-        //String tile = to_string(GetPlayerTiles().at(a_tilenumber - 1).GetSide1()) + '-' + to_string(GetPlayerTiles().at(a_tilenumber - 1).GetSide2());
-        //string trainname = a_train.trainType();
-        //cout << "Tile: " << tile << " was moved to the " << trainname << " as " << a_goal << endl;
-        //cout << "---------------------------------------------------------------------------------" << endl;
-        //cout << "Enter y to continue>>";
-        //string dummyinput;
-        //cin >> dummyinput;
-
+        String Tile=GetTile(a_tilenumber-1).Stringified();
+        a_response.append("Tile: "+ Tile+  " was picked from boneyard and played to the " + a_train.trainType()+ " Train as " + a_goal);
 
     }
 
-    public void SetRepeating(boolean a_replay, int a_tilenumber)
+    public void SetRepeating( int a_tilenumber)
     {
         if (GetTiles().get(a_tilenumber - 1).GetSide1() == GetTiles().get(a_tilenumber - 1).GetSide2()) {
-            a_replay = true;
+            SetReplay(true);
         }
         return;
     }
