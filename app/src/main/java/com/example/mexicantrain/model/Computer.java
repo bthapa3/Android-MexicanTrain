@@ -3,13 +3,36 @@ package com.example.mexicantrain.model;
 import java.util.Set;
 import java.util.Vector;
 
+/*
+ ************************************************************
+ * Name:  Bishal Thapa									   *
+ * Project:  Project 3 Mexican Train Android Java				       *
+ * Class:  CMPS366 OPL				                       *
+ * Date:  11/17/2020				                           *
+ ************************************************************
+ */
 public class Computer extends Player {
 
-
-    public Computer(){
-
-    }
-
+    /**
+     * Computer::Computer
+     * Default constructor for the Computer class
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
+    public Computer(){ }
+    /**
+     * Computer::PlayMove
+     * Helps to make a move for the computer players turn.Utilizes a winning strategy to play
+     * @return boolean value based on whether move is playable or not.
+     * @param trainslist list of all the valid train objects
+     * @param boneyard boneyard tiles in a vector
+     * @param a_response response to be sent to the UI
+     * @param continuedmove number of turns played continously before
+     * @param a_playtype type of move to be made ::Continue playing or quit.
+     * @param a_tileposition tile which is to be played(not valid for computer player)
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public boolean PlayMove(Vector <Train> trainslist, Vector<Tile> boneyard, int continuedmove,int a_tileposition, Round.Playtype a_playtype,StringBuilder a_response)
     {
 
@@ -34,7 +57,7 @@ public class Computer extends Player {
                    // a_response.append("\nTile was picked from boneyard as no valid tiles were present: " + Tileadded);
                     return true;
                 };
-                a_response.append("Placed a boneyard tile to computer tiles list as it could not play on orphan double train. Tile added"+ Tileadded);
+                a_response.append("Computer could not play on orphan double train so boneyard tile added to computer pile. Tile added"+ Tileadded);
                 trainslist.get(1).MarkTrain();
                 return  true;
             }
@@ -126,8 +149,8 @@ public class Computer extends Player {
             tilenumber=  Integer.parseInt(OpponentTile.toString()) ;
             String tile=  String.valueOf(GetTile(tilenumber-1).GetSide1())+"-"+String.valueOf(GetTile(tilenumber-1).GetSide2());
             a_response.append("Computer played tile "+ tile + "to the " + traintoplay.toString() +" as the opponent train has marker");
-            MoveTiletoTrain(trainslist, tilenumber, traintoplay.toString());
             SetRepeating(tilenumber);
+            MoveTiletoTrain(trainslist, tilenumber, traintoplay.toString());
             return true;
         }
 
@@ -205,7 +228,15 @@ public class Computer extends Player {
         }
     }
 
-
+    /**
+     * Computer::BoneyardtoTrain
+     * Helps to move a playable boneyard tile to one of the valid trains
+     * @return boolean value based on if tile was moved
+     * @param a_trainslist list of all the train objects
+     * @param a_response response to be sent back to the UI
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public boolean BoneyardtoTrain(Vector<Train> a_trainslist, StringBuilder a_response)
     {
         Tile last_tile = GetTiles().get(GetTiles().size() - 1);
@@ -236,7 +267,7 @@ public class Computer extends Player {
                     return true;
                 }
 			else {
-                    //DisplayandContinue();
+			        //Do nothing
                 }
             }
             else if (train == 'M') {
@@ -286,7 +317,16 @@ public class Computer extends Player {
         }
         return false;
     }
-
+    /**
+     * Computer::CheckOrphanandMove
+     * Checks if there is orphan train to be played before playing anything else
+     * @return boolean value based on the Orphan train played status
+     * @param a_response response to be sent back to UI
+     * @param a_train  train where a move is made
+     * @param a_trainslist list of all valid train objects
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public boolean checkOrphanandMove(Vector<Train>  a_trainslist,Train  a_train, StringBuilder a_response)
     {
 
@@ -301,27 +341,52 @@ public class Computer extends Player {
         }
         return false;
     }
-
+    /**
+     * Computer::DisplayTileMove
+     * Helps to format the response to be sent back to the UO
+     * @return void:: but response returned by passing reference
+     * @param a_goal reason why move is made
+     * @param a_train train where move is made
+     * @param a_response response to be returned
+     * @param a_tilenumber the tile number that is played
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void DisplayTileMove(int a_tilenumber, Train a_train, String a_goal,StringBuilder a_response)
     {
         String Tile=GetTile(a_tilenumber-1).Stringified();
         a_response.append("Tile: "+ Tile+  " was picked from boneyard and played to the " + a_train.trainType()+ " Train as " + a_goal);
 
     }
-
+    /**
+     * Computer::SetRepeating
+     * Checks if the same player get two turns
+     * @param a_tilenumber tile number of the tile that is played in the current term.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void SetRepeating( int a_tilenumber)
     {
-        if (GetTiles().get(a_tilenumber - 1).GetSide1() == GetTiles().get(a_tilenumber - 1).GetSide2()) {
-            SetReplay(true);
+        if(GetTiles().size()>0){
+            if (GetTiles().get(a_tilenumber - 1).GetSide1() == GetTiles().get(a_tilenumber - 1).GetSide2()) {
+                SetReplay(true);
+            }
+            return;
         }
-        return;
     }
-
+    /**
+     * Computer::MoveTiletoTrain
+     * Tries to move given tile to the given Train
+     * @param a_tilenumber tilenumber of the tile to be played
+     * @param a_train Train where the tile is to be played
+     * @param a_trainslist list of the train objects.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void MoveTiletoTrain(Vector<Train> a_trainslist, int a_tilenumber, String a_train)
     {
         Tile tiletoadd = GetTiles().get(a_tilenumber - 1);
-        String trn= a_train ;
-        String ap=trn;
+
         //here train type is checked because we cannot modify on the copy of the train object.
         if (a_train.equals("Human")) {
             CheckTrainMove(a_trainslist.get(0), tiletoadd, a_tilenumber);
@@ -336,10 +401,7 @@ public class Computer extends Player {
         else if (a_train.equals("Mexican")) {
             CheckTrainMove(a_trainslist.get(2), tiletoadd, a_tilenumber);
         }
-        else {
-            //String trn= a_train.trainType() ;
-            //String ap=trn;
-        }
+
     }
 
 

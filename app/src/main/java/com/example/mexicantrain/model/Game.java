@@ -13,7 +13,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
-
+/*
+ ************************************************************
+ * Name:  Bishal Thapa									   *
+ * Project:  Project 3 Mexican Train Android Java				       *
+ * Class:  CMPS366 OPL				                       *
+ * Date:  11/17/2020				                           *
+ ************************************************************
+ */
 public class Game {
 
 
@@ -22,92 +29,155 @@ public class Game {
     private int m_computerscore;
     //the integer count of the current round
     private int m_currentround;
-    private boolean m_initializedfromfile;
-
-
     //new round object
     private Round m_newround=null;
 
-    public int GetcurrentroundNum(){
-        return m_currentround;
-    }
-    public void SetRoundNum(int value){
-        m_currentround=value;
-    }
-    public void IncreaseRoundnum(){
-        m_currentround=m_currentround+1;
-    }
+    /**
+     * Game::Game
+     * Constructor for the game class
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public Game()
     {
         m_humanfirst = false;
         m_humanscore = 0;
         m_computerscore = 0;
         m_currentround = 1;
-        m_initializedfromfile = false;
 
     }
+    /**
+     * Game::GetcurrentroundNum
+     * Returns the round number
+     * @return int value that refers to the round number
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
+    public int GetcurrentroundNum(){
+        return m_currentround;
+    }
+    /**
+     * Game setRoundNum
+     * sets the current round number
+     * @param value that is the round number to be set
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
+    public void SetRoundNum(int value){
+        m_currentround=value;
+    }
+    /**
+     * Game::GetRound
+     * Get the current round number
+     * @return int value of the round
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
+    public Round GetRound(){
+        return m_newround;
+    }
+    /**
+     * Game::IncreaseRoundnum
+     * Incerases the round number by 1
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
+    public void IncreaseRoundnum(){
+        m_currentround=m_currentround+1;
+    }
+
+    /**
+     * Game::StartGame
+     * Starts a new round of the game and initializes it
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void StartGame(){
-        boolean computertrainmarked=false;
-        boolean  usertrainmarked=false;
+
         m_newround = new Round(m_currentround);
         m_newround.Initializegame();
     };
-
+    /**
+     * Game::StartGamefromFile
+     * Helps to load a game from file
+     * @param a_filepath path from where file is to be loaded
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void StartGamefromFile(String a_filepath){
-
         ReadfromFile(a_filepath);
     };
-
+    /**
+     * Game::GetHumanGamesScore
+     * returns human score for the game
+     * @return human score an integer value
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public int GetHumanGamescore(){
         return m_humanscore;
     }
+    /**
+     * Game::GetComputerGamescore()
+     * returns computer score for the game
+     * @return computers score as an integer value
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public int GetComputerGamescore(){
         return m_computerscore;
     }
+    /**
+     * Game:AddHumanscore
+     * Incerase human score by given value
+     * @param value value to be added
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void AddHumanScore(int value){
         m_humanscore=m_humanscore+value;
     }
+    /**
+     * Game::AddComputerScore
+     * Increase computer score by given value
+     * @param value to be added
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void AddComputerScore(int value){
         m_computerscore=m_computerscore+value;
     }
-    public void addComputerscore(int a_score) {
-        m_computerscore = m_computerscore + a_score;
-    }
-    public void addUserscore(int a_score) {
-        m_humanscore = m_humanscore + a_score;
-    }
-    public int getUserscore() {
-        return m_humanscore;
-    }
-    public int getComputerscore() {
-        return m_computerscore;
-    }
-    public void setInitializedfromFile(boolean a_isinitialized) {
-        m_initializedfromfile = a_isinitialized;
-    }
-
-    public boolean isInitializedfromFile() {
-        return m_initializedfromfile;
-    }
-
+    /**
+     * Game::setHumanFirst
+     * Sets if human player is the first one to play
+     * @param a_humanfirst boolean that states if the human will be the first one to play
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void setHumanFirst(boolean a_humanfirst) {
         m_humanfirst = a_humanfirst;
     }
+    /**
+     * Game::isHumanFirst
+     * Gets if the human is the first one to play
+     * @return boolean value that states if the human is the first player to play
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public boolean isHumanFirst() {
         return m_humanfirst;
     }
 
-    //public boolean ReadfromFile(boolean & computertrainmarked, boolean& usertrainmarked, Round & newround);
-    //this was the original method. Vector<String>& vect
-    //public void LineSplitter(String str, Vector<String>& vect){
-
-    //};
-
-    public String TrimSpace(String s){
-     return "Asdf";
-    }
-
+    /**
+     * Game::ReadfromFile
+     * Helps to load game contents from file
+     * @param a_filepath file path from where file is to be loaded
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void ReadfromFile(String a_filepath){
+        //Each line is read and stored as needed.
+        //The following is the path
         a_filepath= Environment.getExternalStorageDirectory().getAbsolutePath() +"/Download"+"/"+a_filepath;
         m_newround=new Round(m_currentround);
         StringBuffer sbuffer =new StringBuffer();
@@ -118,7 +188,7 @@ public class Game {
             BufferedReader br=new BufferedReader(new FileReader(a_filepath));
             String newline;
             while((newline=br.readLine())!=null){
-                System.out.println("Reads a line");
+                //System.out.println("Reads a line");
                 if(!newline.trim().isEmpty()) {
                     lines.add(newline);
                     //text.append("\n");
@@ -126,20 +196,11 @@ public class Game {
 
             }
             br.close();
-            System.out.println("text content"+ text);
+            //System.out.println("text content"+ text);
         }catch (IOException e){
             System.out.println("Error"+ e.getStackTrace());
         }
-        for(int i=0;i<lines.size();i++){
-            System.out.println("line " +i +"-->"+ lines.get(i).trim());
 
-
-            //there is 3 spaces and Hand:  before tiles so 4 spaces are hold by those
-          //  for (int i = 1; i < computertilesunrefined.size(); i++) {
-            //    Tile mytile = Tile(stoi(computertilesunrefined[i].substr(0, 1)), stoi(computertilesunrefined[i].substr(2)));
-              //  computerrefined.push_back(mytile);
-            //}
-        }
         m_currentround=Integer.parseInt(lines.get(0).trim().substring(7));
         m_computerscore =  Integer.parseInt(lines.get(2).trim().substring(7));
         m_humanscore=Integer.parseInt(lines.get(6).trim().substring(7));
@@ -174,7 +235,7 @@ public class Game {
         int endpos=humantrainunrefined.length;
         if(humantrainunrefined[endpos-1].equals("M")){
             System.out.println("There exists a marker for the computer train");
-            //this excluedes the lat item.
+            //this excludes the last item.
             endpos=endpos-1;
             Human_train_marker=true;
         }
@@ -214,9 +275,6 @@ public class Game {
     }
 
 
-    public Round GetRound(){
-        return m_newround;
-    }
 
 }
 

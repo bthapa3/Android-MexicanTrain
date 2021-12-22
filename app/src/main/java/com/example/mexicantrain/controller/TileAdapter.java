@@ -14,13 +14,29 @@ import com.example.mexicantrain.model.Tile;
 
 import java.util.Vector;
 
-//https://www.youtube.com/watch?v=69C1ljfDvl0
+/*
+ ************************************************************
+ * Name:  Bishal Thapa									   *
+ * Project:  Project 3 Mexican Train Android Java				       *
+ * Class:  CMPS366 OPL				                       *
+ * Date:  11/17/2020				                           *
+ ************************************************************
+ */
 public class TileAdapter extends RecyclerView.Adapter<TileAdapter.holder> {
-    Vector<Tile> traintiles;
-    String storagetype;
+    private Vector<Tile> traintiles;
+    private String storagetype;
     private OnNotelistener m_onNotelistener;
 
-
+    /**
+     * TileAdapter::TileAdapter
+     * Constructor for the Tileadaptor class
+     * @param onNotelistener  notelistener object
+     * @param storagetype this states where the tile adapter is used i.e train or tiles list
+     * @param traintiles list of all the tiles to be displayed
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     * @Help :  https://www.youtube.com/watch?v=69C1ljfDvl0
+     */
     public TileAdapter(Vector<Tile> traintiles, String storagetype, OnNotelistener onNotelistener) {
         this.traintiles = traintiles;
         this.storagetype=storagetype;
@@ -77,6 +93,7 @@ public class TileAdapter extends RecyclerView.Adapter<TileAdapter.holder> {
         }
     }
 
+    //returns the int position to Playround activity on click for getting the tile number
     public interface OnNotelistener{
         void OnNoteClick(int position);
     }

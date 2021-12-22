@@ -17,6 +17,7 @@ import android.os.Environment;
 import android.provider.Settings;
 import android.text.InputType;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -38,9 +39,17 @@ import java.io.OutputStreamWriter;
 import java.util.Collections;
 import java.util.Vector;
 
-
+/*
+ ************************************************************
+ * Name:  Bishal Thapa									   *
+ * Project:  Project 3 Mexican Train Android Java				       *
+ * Class:  CMPS366 OPL				                       *
+ * Date:  11/17/2020				                           *
+ ************************************************************
+ */
 public class PlayRound extends AppCompatActivity implements TileAdapter.OnNotelistener {
 
+    //--------------------Private member variables here--------------------------------------------------
     private Button m_playgame;
     private boolean m_newround;
     private TextView m_boneyardtiles, m_engineTile,m_picklabel,m_nextplayer, m_roundnnum, m_humanscore, m_computerscore;
@@ -53,9 +62,17 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
     private boolean m_playingboneyard;
     private Vector<String> m_logs=new Vector<>();
     private String m_Filename;
-
+//-------------------------------------------------------------------------------------------------------------------
+    /**
+     * PlayRound::onCreate
+     * loads the activity, sets the content view and onclick listeners
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //Binding view with the controller
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_round);
         m_humantrain=findViewById(R.id.humantrain);
@@ -84,7 +101,10 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
         m_computerscore=findViewById(R.id.computerscore);
         m_quit=findViewById(R.id.quit);
 
+        //-----------------------controllers work from here
+        //Gets the data passed from previous activity
         GetIntentExtras();
+        //Displays the changes
         SetUIChanges();
 
         m_humannext=m_game.isHumanFirst();
@@ -98,17 +118,19 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
         }
 
         //---code till here is used for initial render purposes-----------------------------------//
+        //--------On-click listeners setup from here--------------------------------------------------------
         m_playhumantrain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //im case of tile already picked from boneyard this moves the tile to train rather than asking to pick a tile
                 if(m_playingboneyard){
                     StringBuilder move_response=new StringBuilder("");
-                    //Instead of sendind tile for the boneyard trainnumber is sent in tilenumber value as this is exception.
+
                     boolean validtile= m_game.GetRound().MoveBoneyardtoTrain(Round.Playtype.Human,move_response);
 
                     m_playingboneyard=false;
                     if(validtile){
-                        m_logs.add(move_response.toString());
+                        m_logs.add("Human turn:" + move_response.toString());
                         Popup("Playing to Boneyard",move_response.toString());
                         m_humannext =m_game.GetRound().Humannext();
                         if(m_humannext){
@@ -121,11 +143,12 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
                         }
                     }
                     else{
-                        m_logs.add(move_response.toString());
+                        //m_logs.add(move_response.toString());
                         Popup("Tile not playable!! Please play again",move_response.toString());
                     }
                     SetUIChanges();
                 }
+                //should ask to pick a tile in this case.
                 else{
                     m_trainpicked=true;
                     m_trainplayed=Round.Playtype.Human;
@@ -140,11 +163,11 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
             public void onClick(View v) {
                 if(m_playingboneyard){
                     StringBuilder move_response=new StringBuilder("");
-                    //Instead of sendind tile for the boneyard trainnumber is sent in tilenumber value as this is exception.
+
                     boolean validtile= m_game.GetRound().MoveBoneyardtoTrain(Round.Playtype.Computer,move_response);
                     m_playingboneyard=false;
                     if(validtile){
-                        m_logs.add(move_response.toString());
+                        m_logs.add("Human turn:"+move_response.toString());
                         Popup("Playing to Boneyard",move_response.toString());
                         m_humannext =m_game.GetRound().Humannext();
                         if(m_humannext){
@@ -157,7 +180,7 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
                         }
                     }
                     else{
-                        m_logs.add(move_response.toString());
+                        //m_logs.add(move_response.toString());
                         Popup("Tile not playable!!! Please play again",move_response.toString());
                     }
                     SetUIChanges();
@@ -168,7 +191,7 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
                     Popup("Train chosen: Computer", "Please select a valid tile to play on Computer train");
                     DisplaypickLabel();
                 }
-                //CheckGameover();
+
             }
         });
 
@@ -177,11 +200,11 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
             public void onClick(View v) {
                 if(m_playingboneyard){
                     StringBuilder move_response=new StringBuilder("");
-                    //Instead of sendind tile for the boneyard trainnumber is sent in tilenumber value as this is exception.
+
                     boolean validtile= m_game.GetRound().MoveBoneyardtoTrain(Round.Playtype.Mexican,move_response);
                     m_playingboneyard=false;
                     if(validtile){
-                        m_logs.add(move_response.toString());
+                        m_logs.add("Human turn:"+ move_response.toString());
                         Popup("Playing to Boneyard",move_response.toString());
                         m_humannext =m_game.GetRound().Humannext();
                         if(m_humannext){
@@ -194,7 +217,6 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
                         }
                     }
                     else{
-                        m_logs.add(move_response.toString());
                         Popup("Tile not Playable!! Please play again",move_response.toString());
                     }
                     SetUIChanges();
@@ -205,10 +227,11 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
                     Popup("Train chosen: Mexican", "Please select a valid tile to play on Mexican train");
                     DisplaypickLabel();
                 }
-                //CheckGameover();
+
             }
         });
 
+        //This button is used to play the computer turn
         m_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -216,7 +239,7 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
                     m_trainpicked=false;
                     StringBuilder response=new StringBuilder("") ;
                     m_game.GetRound().PlayComputer(true, response);
-                    m_logs.add(response.toString());
+                    m_logs.add("Computer turn:"+response.toString());
                     Popup("Computer Turn Update",response.toString());
                     m_humannext=m_game.GetRound().Humannext();
                     if(m_humannext){
@@ -229,9 +252,10 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
                 else{
                     Toast.makeText(PlayRound.this,"Play tile before pressing yes", Toast.LENGTH_LONG);
                 }
-                //CheckGameover();
+
             }
         });
+        //picks a tile from boneyard; if playable asks to pick a train
         m_pickboneyard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -243,7 +267,7 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
                     if(m_game.GetRound().GetPlayer(0).Canplaytile(trains,boneyardtile,continousplayed) ==false){
                         m_game.GetRound().MoveBoneyardtoHuman();
                         String tile_string=String.valueOf(boneyardtile.GetSide1())+'-'+String.valueOf(boneyardtile.GetSide2());
-                        m_logs.add("Since the tile is not playable to any train, Tile "+tile_string+ " placed to human piles!Marker added.");
+                        m_logs.add("Human turn:"+ "Since the tile is not playable to any train, Tile "+tile_string+ " placed to human piles!Marker added.");
                         Popup("Tile Not Playable!!","Since the tile is not playable to any train, Tile "+tile_string+ " placed to human piles!Marker added.");
                         m_humannext =m_game.GetRound().Humannext();
                         if(m_humannext){
@@ -259,7 +283,7 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
                     //if boneyard tile is playable to atleast one human train.
                     else{
                         m_playingboneyard=true;
-                        Popup("Boneyard Tile Playable","Please place the boneyard tile"+ boneyardtile.Stringified()+ "to a valid train");
+                        Popup("Boneyard Tile Playable","Picked Boneyard tile can be played so place the boneyard tile: "+ boneyardtile.Stringified()+ "to a valid train");
                         m_picklabel.setText("Please select train to place the boneyard tile.");
                         m_picklabel.setVisibility(View.VISIBLE);
                         //This depends on the onclick listener for play-train buttons as they are the ones that trigger the move boneyard
@@ -268,26 +292,46 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
                 }
             }
         });
+        //asking for help. Should make no changes to the game state.
         m_help.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 StringBuilder response=new StringBuilder("");
                 if(m_humannext){
                     m_game.GetRound().PlayHuman(Round.Playtype.Help, -1, response);
-                    m_logs.add(response.toString());
+                  //  m_logs.add(response.toString());
                     Popup("Help Provided",response.toString());
                 }
             }
         });
+        //Serialize and quit for both human and computer
         m_quit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Quit();
             }
         });
+        //Brings pop up for the logs
+        m_log.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String log="";
+                for(int i=0;i<m_logs.size();i++){
+                     log=log + (i+1) + ")" + "-" + m_logs.get(i)+"\n";
+                }
+                Popup("Logs", log);
+            }
+        });
 
     }
 
+
+    /**
+     * PlayRound::SetUIChanges
+     * This function is used to re render the tiles. Might not be the most efficient but works for light usage.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void SetUIChanges(){
         DisplayComputerTiles();
         DisplayHumanTiles();
@@ -298,21 +342,45 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
         DisplayBoneyardTile();
         Displayscoreandround();
     }
+
+    /**
+     * PlayRound::DisplayComputerTiles
+     * Display the computer tiles using the recycler view
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
+
     public void DisplayComputerTiles(){
         //displays the human tiles on the text fields
         m_computertiles.setLayoutManager(new GridLayoutManager(this, 11));
         Vector<Tile> computertiles=m_game.GetRound().GetPlayer(1).GetTiles();
         m_computertiles.setAdapter(new TileAdapter(computertiles,"ComputerTiles",this));
     }
+    /**
+     * PlayRound::DisplayHumanTiles
+     * Display the human tiles using the recycler view
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
+
     public void DisplayHumanTiles(){
         m_humantiles.setLayoutManager(new GridLayoutManager(this, 11));
         Vector<Tile> humantiles=m_game.GetRound().GetPlayer(0).GetTiles();
         m_humantiles.setAdapter(new TileAdapter(humantiles,"HumanTiles",this));
     }
+
+    /**
+     * PlayRound::DisplayHumanTrain
+     * Display the HumanTrain using the recycler view
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
+
     public void DisplayHumanTrain(){
         boolean h_markerexists=m_game.GetRound().GetTrain(0).isTrainMarked();
         m_humantrain.setLayoutManager(new GridLayoutManager(this, 6));
         Vector<Tile> humantrain=new Vector<>();
+        //This is done inorder to avoid passing by refrence. Could have cloned but this works too.
         for(int i=0;i<m_game.GetRound().GetTrain(0).GetAllTiles().size();i++){
             int side1=m_game.GetRound().GetTrain(0).GetAllTiles().get(i).GetSide1();
             int side2=m_game.GetRound().GetTrain(0).GetAllTiles().get(i).GetSide2();
@@ -325,7 +393,15 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
         }
         m_humantrain.setAdapter(new TileAdapter(humantrain,"Train",this));
     }
+
+    /**
+     * PlayRound::DisplayComputerTrain
+     * Display the ComputerTrain using the recycler view
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void DisplayComputerTrain(){
+        //Need to reverse before passing as the computer train is displayed in reverse order. Everthing else is same.
         boolean C_markerexists=m_game.GetRound().GetTrain(1).isTrainMarked();
         Vector<Tile> computertrain=new Vector<>();
         //Had to do this as the train was being modified due to reference.
@@ -346,6 +422,12 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
         m_computertrain.setLayoutManager(gridLayoutManager);
         m_computertrain.setAdapter(new TileAdapter(computertrain,"Train",this));
     }
+    /**
+     * PlayRound::DisplayMexicanTrain
+     * Display the MexicanTrain using the recycler view
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void DisplayMexicanTrain(){
         m_mexicantrain.setLayoutManager(new GridLayoutManager(this, 6));
         Vector<Tile> mexicantrain= (Vector<Tile>) m_game.GetRound().GetTrain(2).GetAllTiles().clone();
@@ -354,17 +436,40 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
         }
         m_mexicantrain.setAdapter(new TileAdapter(mexicantrain,"Train",this));
     }
+
+    /**
+     * PlayRound::DisplayEngineTile
+     * Display the EngineTile
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void DisplayEngineTile(){
         Tile engineTile=m_game.GetRound().GetEngineTile();
         m_engineTile.setText("   " + engineTile.GetSide1()+ "\n" + "   "   +engineTile.GetSide2());
     }
+    /**
+     * PlayRound::DisplayBoneyardTile
+     * Display the BoneyardTile using the recycler view
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void DisplayBoneyardTile(){
         if(m_game.GetRound().ReturnBoneyard().size()>0){
             Tile nextboneyardTile=m_game.GetRound().ReturnBoneyard().get(0);
             m_boneyardtiles.setText(  nextboneyardTile.GetSide1()+ "--"   +nextboneyardTile.GetSide2());
         }
     }
+
+    /**
+     * PlayRound::Displayscoreandround
+     * Display the score and round
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
+
     public void Displayscoreandround(){
+        //Displayed at the bottom of the UI
+        //Gets data directly from the model.
         Integer roundnum=m_game.GetcurrentroundNum();
         m_roundnnum.setText("Round number: " + roundnum.toString());
         m_roundnnum.setTextSize(14);
@@ -374,6 +479,12 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
         m_computerscore.setText("Comp score: " + m_game.GetComputerGamescore());
     }
 
+    /**
+     * PlayRound::DisplayforComputerTurn
+     * Display for computer turn.Changes based on players turn are handled by this.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void DisplayforComputerTurn(){
         m_playhumantrain.setEnabled(false);
         m_playcomputertrain.setEnabled(false);
@@ -382,6 +493,12 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
         this.m_pickboneyard.setVisibility(View.INVISIBLE);
         this.m_picklabel.setVisibility(View.INVISIBLE);
     }
+    /**
+     * PlayRound::DisplayforHumanTurn
+     * Display for human turn.Changes based on players turn are handled by this.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void DisplayforHumanTurn(){
         m_playhumantrain.setEnabled(true);
         m_playcomputertrain.setEnabled(true);
@@ -389,18 +506,25 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
         this.m_help.setVisibility(View.VISIBLE);
         this.m_pickboneyard.setVisibility(View.VISIBLE);
     }
+    /**
+     * PlayRound::DisplaypickLabel
+     * Helps to display where the tiles for human train are located..
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void DisplaypickLabel(){
         String trainpicked=m_trainplayed.toString();
         m_picklabel.setText(" Train picked: " + trainpicked+ "\n Choose tile to play!!");
         m_picklabel.setVisibility(View.VISIBLE);
     }
-   //helper functions to get tiles
-    public Vector<Tile> GetPlayertiles(Game a_game, int playernumber){
-        return m_game.GetRound().GetPlayer(playernumber).GetTiles();
-    }
-    public Vector<Tile> GetTraintiles(Game a_game, int trainnumber){
-        return m_game.GetRound().GetTrain(trainnumber).GetAllTiles();
-    }
+
+    /**
+     * PlayRound::reverseTileforUI
+     * Helps reversing each tile inside the vector of tiles. Used for displaying the computer train.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
+
     public Vector<Tile> reverseTileforUI(Vector<Tile> a_computertrain){
         Vector<Tile> reversed=new Vector<>();
         for(int i=0;i<a_computertrain.size();i++){
@@ -412,11 +536,14 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
     }
 
 
+    //This object comes from the recycler view adapter.
+    //Is only related to human list of tiles as only tiles human chooses is from there.
     @Override
+    //Position gives the tiles position that is clicked
     public void OnNoteClick(int position) {
         //System.out.println("@@ position: "+ position) ;
         if(m_humannext){
-
+            //If the train has been chosen prior to this.
             if(m_trainpicked==true){
                 StringBuilder move_response=new StringBuilder();
                 boolean validtile= m_game.GetRound().PlayHuman(m_trainplayed, position+1,move_response);
@@ -432,11 +559,11 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
                         m_nextplayer.setText("Next player:Computer");
                     }
                     SetUIChanges();
-                    m_logs.add(move_response.toString());
+                    m_logs.add("Human turn:"+ move_response.toString());
                     Popup("Tile moved", move_response.toString());
                 }
                 else{
-                    m_logs.add(move_response.toString());
+                    //m_logs.add(move_response.toString());
                     Popup("Invalid move", move_response.toString());
                 }
 
@@ -450,11 +577,19 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
             Toast.makeText(this,"Please press next for computer turn",Toast.LENGTH_LONG);
 
         }
-        //finish();
-        //startActivity(getIntent());
+
     }
 
-    //this checks if the game is over everytime
+
+    /**
+     * PlayRound::Popup
+     * Dismiss able dialog box for UI
+     * @param a_Message message to be displayed
+     * @param a_Title Title of the message
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
+
     public void Popup(String a_Title, String a_Message ){
         AlertDialog dialog=new AlertDialog.Builder(PlayRound.this)
                 .setTitle(a_Title)
@@ -463,6 +598,7 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+                        //this checks if the game is over everytime a dialog is dismissed.
                         CheckGameover();
                     }
                 })
@@ -470,8 +606,16 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
         dialog.show();
     }
 
-    //this doesnot check game status.
-    public void PopupGeneral(String a_Title, String a_Message, boolean quit ){
+    /**
+     * PlayRound::LastPopup
+     * Dismiss able dialog box for UI. Only used if we need to quit game after this.
+     * @param a_Message message to be displayed
+     * @param a_Title Title of the message
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
+
+    public void LastPopup(String a_Title, String a_Message, boolean quit ){
         AlertDialog dialog=new AlertDialog.Builder(PlayRound.this)
                 .setTitle(a_Title)
                 .setMessage(a_Message)
@@ -489,6 +633,12 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
     }
 
 
+    /**
+     * PlayRound::CheckGameover
+     * Checks if the game is over or not.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void CheckGameover(){
         if(m_game.GetRound().Playpossible()==false){
             m_game.GetRound().CalculateRoundscore();
@@ -515,7 +665,7 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
                                 m_humannext=true;
                                 m_nextplayer.setText("Next player:Human");
                                 DisplayforHumanTurn();
-                                PopupGeneral("New Game","Human had the lower score so human goes next",false);
+                                LastPopup("New Game","Human had the lower score so human goes next",false);
                                 SetUIChanges();
                             }
                             else if(HumanGamescore>ComputerGamescore){
@@ -525,7 +675,7 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
                                 m_humannext=false;
                                 m_nextplayer.setText("Next player:Computer");
                                 DisplayforComputerTurn();
-                                PopupGeneral("New Game","Computer had the lower score so computer goes next",false);
+                                LastPopup("New Game","Computer had the lower score so computer goes next",false);
                                 SetUIChanges();
                             }
                             else if(HumanGamescore==ComputerGamescore){
@@ -554,7 +704,7 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
                             else{
                                 Winner="Game tied as both of the players had equal score";
                             }
-                            PopupGeneral("This game is over", Winner, true);
+                            LastPopup("This game is over", Winner, true);
                         }
                     })
                     .create();
@@ -564,7 +714,12 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
         };
     }
 
-
+    /**
+     * PlayRound::GetIntentExtras
+     * Gets the  bundle values sent from the previous activity which helps to setup rounds based on files loaded.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void GetIntentExtras(){
         Bundle bundle = getIntent().getExtras();
         if(bundle != null){
@@ -608,14 +763,18 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
         }
     }
 
-    //https://stackoverflow.com/questions/10903754/input-text-dialog-android
+    /**
+     * PlayRound::Quit
+     * Helps to Serialize and quit the game
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     * @Help https://stackoverflow.com/questions/10903754/input-text-dialog-android
+     */
     public void Quit(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Are you sure you want to Quit?Enter Filename!! ");
 
-        // Set up the input
         final EditText input = new EditText(this);
-        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
@@ -625,13 +784,11 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
             public void onClick(DialogInterface dialog, int which) {
 
                 String writecontent= m_game.GetRound().SerializeandQuit(m_game.GetHumanGamescore(), m_game.GetComputerGamescore());
-                // Get the directory for the user's public pictures directory.
-                System.out.println("@@"+writecontent);
+                //Saved in download directory as thats where rest of the files are also downloaded.
                 final File file_path = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download");
                 //Checking for the path
                 if(!file_path.exists())
                 {
-                    // Make it, if it doesn't exit.
                     file_path.mkdirs();
                 }
 
@@ -651,7 +808,7 @@ public class PlayRound extends AppCompatActivity implements TileAdapter.OnNoteli
                 {
                     e.printStackTrace();
                 }
-                PopupGeneral("Your file has been serialized","You can quit the game", true);
+                LastPopup("Your file has been serialized","You can quit the game", true);
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

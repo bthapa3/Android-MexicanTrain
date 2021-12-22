@@ -3,8 +3,22 @@ package com.example.mexicantrain.model;
 import java.util.Random;
 import java.util.Vector;
 
+/*
+ ************************************************************
+ * Name:  Bishal Thapa									   *
+ * Project:  Project 3 Mexican Train Android Java				       *
+ * Class:  CMPS366 OPL				                       *
+ * Date:  11/17/2020				                           *
+ ************************************************************
+ */
 public class Deck {
     private Vector<Tile> m_deck=new Vector<>();
+    /**
+     * Deck::Deck
+     * Default constructor for the deck class. Creates a deck of 55 tiles
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public Deck() {
         for (int i = 0;i <= 9;i++) {
             for (int j = i; j <= 9;j++)
@@ -14,13 +28,23 @@ public class Deck {
             }
         }
     }
+    /**
+     * Deck::GetDeck
+     * Returns a deck
+     * @return Vector of tiles that represents a deck
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public Vector<Tile> GetDeck() {
         return m_deck;
     }
 
-    // pop_back equivalent.
-    //a.remove(a.size()-1);
-    //for shuffling the deck
+    /**
+     * Deck::ShuffleDeck
+     * Shuffles the tile within the deck to random order
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void ShuffleDeck(){
         Vector <Tile> shuffleddeck =new Vector<>();
         while (m_deck.size() != 0) {
@@ -39,6 +63,14 @@ public class Deck {
         m_deck = shuffleddeck;
 
     };
+    /**
+     * Deck::GenerateRandomNumber
+     * Helper function for shuffling the deck
+     * @return random number in the given range
+     * @param range that represents the range within which random number is to be generated
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     //helper function that helps for shuffling the tiles properly.
     public int GenerateRandomNumber(int range){
         Random rand = new Random();
@@ -46,7 +78,14 @@ public class Deck {
         int randomNumber = rand.nextInt(range);
         return randomNumber;
     };
-    //returns the EngineTile for starting the Game
+    /**
+     * Deck::GetEngineTile
+     * Returns the engine tile for the round
+     * @return Tile that is the engine tile
+     * @param a_round current rounds numerical value
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public Tile GetEngineTile(int a_round){
         //this helps when the round is greater than 100.
         while (a_round > 10) {
@@ -80,6 +119,13 @@ public class Deck {
 
         return enginetile;
     };
+    /**
+     * Deck::GetPlayersTiles
+     * Returns 16 tiles allocated to the human player
+     * @return vector of tiles
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     //returns the players tiles
     public Vector<Tile> GetPlayerTiles(){
         Vector<Tile> playertiles = new Vector<>();
@@ -89,6 +135,13 @@ public class Deck {
         }
         return playertiles;
     };
+    /**
+     * Deck::GetComputertiles
+     * Return 16 tiles allocated to the computer player
+     * @return vector of Tiles objects
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     //returns the Computers Tiles
     public Vector<Tile> GetComputerTiles(){
         Vector<Tile> computertiles = new Vector<>();
@@ -99,6 +152,13 @@ public class Deck {
         return computertiles;
 
     };
+    /**
+     * Deck::GetBoneyardTiles
+     * Return rest of the tiles allocated to the boneyard
+     * @return vector of tiles
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     //returns the Boneyard Tiles
     public Vector<Tile> GetBoneyardTiles(){
         Vector<Tile> bonyardtiles=new Vector<>();

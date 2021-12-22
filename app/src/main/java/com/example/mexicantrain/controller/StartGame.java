@@ -29,29 +29,39 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-
+/*
+ ************************************************************
+ * Name:  Bishal Thapa									   *
+ * Project:  Project 3 Mexican Train Android Java				       *
+ * Class:  CMPS366 OPL				                       *
+ * Date:  11/17/2020				                           *
+ ************************************************************
+ */
 public class StartGame extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_STORAGE=1000;
-    private static final int READ_REQUEST_CODE=42;
     private Button m_startbutton, m_loadbutton;
+    /**
+     * StartGame::onCreate
+     * loads the activity, sets the content view and onclick listeners
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_game);
 
-
+        //check and request permissions ::This gives trouble if not granted as requested
         if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
             != PackageManager.PERMISSION_GRANTED){
             requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_STORAGE);
         }
 
-
         m_startbutton=findViewById(R.id.startbutton);
         m_loadbutton=findViewById(R.id.loadbutton);
-        //check and request permissions
 
-
+        //on-click listeners setup here
         m_startbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

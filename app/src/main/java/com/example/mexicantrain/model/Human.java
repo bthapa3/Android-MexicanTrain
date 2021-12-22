@@ -6,21 +6,37 @@ import com.example.mexicantrain.controller.PlayerToss;
 
 import java.util.Set;
 import java.util.Vector;
-
+/*
+ ************************************************************
+ * Name:  Bishal Thapa									   *
+ * Project:  Project 3 Mexican Train Android Java				       *
+ * Class:  CMPS366 OPL				                       *
+ * Date:  11/17/2020				                           *
+ ************************************************************
+ */
 public class Human extends Player {
 
-    public Human(){
+    /**
+     * Human::Human
+     * Default constructor for Human class
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
+    public Human(){ }
 
-    }
-    private enum Playtype {
-        Human,
-        Computer,
-        Mexican,
-        Help,
-        Quit,
-        Boneyard
-    }
-
+    /**
+     * Human::PlayMove
+     * Helps to make a human players move based on human players inputs
+     * @return boolean value based on if  move was possible or not.
+     * @param trainslist vector of list of all train objects
+     * @param boneyard boneyard tiles
+     * @param continuedmove int number of turns played continuously before.
+     * @param a_playtype type of move human player made
+     * @param a_msg response sent after move
+     * @param a_tileposition position of tile to be played if exists.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public boolean PlayMove(Vector <Train> trainslist, Vector<Tile> boneyard, int continuedmove, int a_tileposition, Round.Playtype a_playtype,StringBuilder a_msg)
     {
         String tiletobeplayed="";
@@ -46,7 +62,7 @@ public class Human extends Player {
             return false;
         }
         else if(a_playtype.equals(Round.Playtype.Quit)){
-            //a_quit = m_nextstep.Quit;
+
             SetQuitGame(true);
             return false;
         }
@@ -70,7 +86,7 @@ public class Human extends Player {
                 }
             }
             else {
-                PlaceTiletoTrain(trainslist.get(0), "Human",a_tileposition);
+                PlaceCustomTiletoTrain(trainslist.get(0), "Human",a_tileposition);
                 if(Isvalidtileplayed()) {
                     a_msg.append("The following tiles was played to the Human train: " + tiletobeplayed);
                     if ((trainslist.get(0)).isTrainMarked())
@@ -88,7 +104,7 @@ public class Human extends Player {
                 if (continuedmove == 1) {
                     return CheckandPlacesecDouble(trainslist, trainslist.get(1), "Computer", a_tileposition,a_msg);
                 } else {
-                    PlaceTiletoTrain(trainslist.get(1), "Computer", a_tileposition);
+                    PlaceCustomTiletoTrain(trainslist.get(1), "Computer", a_tileposition);
                 }
                 if(Isvalidtileplayed()) {
                     a_msg.append("The following tiles was played to the Computer train: " + tiletobeplayed);
@@ -107,7 +123,7 @@ public class Human extends Player {
                 return CheckandPlacesecDouble(trainslist, trainslist.get(2),  "Mexican", a_tileposition,a_msg);
             }
             else {
-                PlaceTiletoTrain(trainslist.get(2), "Mexican",a_tileposition);
+                PlaceCustomTiletoTrain(trainslist.get(2), "Mexican",a_tileposition);
             }
             if(Isvalidtileplayed()) {
                 a_msg.append("The following tiles was played to the Mexican train: " + tiletobeplayed);
@@ -121,22 +137,23 @@ public class Human extends Player {
 
         }
 
+        //move was not successful if reached here so return false
         return false;
-       // return replay;
 
     }
 
-    public boolean BoneyardtoTrain(Vector<Train> a_trainslist,char trainplayed,Vector<Tile> boneyard,StringBuilder a_msg )
-    {
 
 
-        return true;
-    }
-
-
-
-
-
+    /**
+     *  Human::Playsuggestor
+     *  Help human to play a winning strategy
+     * @return StringBuilder values that stores the string suggestion on Train and Tile to play
+     * @param trainslist list of trains objects
+     * @param continuedmove number of turns continously played before
+     * @param boneyard list of boneyard tiles.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public StringBuilder Playsuggestor(Vector <Train> trainslist, Vector<Tile> boneyard, int continuedmove)
     {
 
@@ -155,7 +172,7 @@ public class Human extends Player {
             if (traintype == 'M' && (SuggestOrphanMove(trainslist,  trainslist.get( 2) ,suggestion))) return suggestion;
             if (traintype == 'C' && (SuggestOrphanMove(trainslist,  trainslist.get(1) ,suggestion))) return suggestion;
 
-            suggestion.append("You donot have valid tile to play trains. Pick boneyard tiles and mark the train");
+            suggestion.append("You donot have valid tile to play trains. Pick boneyard tiles and Continue");
             return suggestion;
         }
 
@@ -186,7 +203,6 @@ public class Human extends Player {
 
             }
         }
-
 
 
 
@@ -285,45 +301,43 @@ public class Human extends Player {
         }
     }
 
+
+    /**
+     * Human::SuggestOrphanMove
+     * Help if the orphan double train exists
+     * @return boolean value based on if orphan double can be played ::important a_msg is returned by reference
+     * @param a_trainslist list of all valid trains
+     * @param a_msg suggestion for human move
+     * @param a_train orphan train where tile is to be played
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public boolean SuggestOrphanMove(Vector<Train> a_trainslist, Train a_train,StringBuilder a_msg)
     {
         if (CanPlayinTrain(a_train)) {
 
             int tilenumber = GetPlayableTile(a_train)-1;
             String tile=  String.valueOf(GetTile(tilenumber).GetSide1())+"-"+String.valueOf(GetTile(tilenumber).GetSide2());
-            a_msg.append("Play tile "+ tile + "to the " + a_train.trainType() +"as it is the orphan double train.");
+            a_msg.append("Play tile "+ tile + "to the " + a_train.trainType() +"Train as it is the orphan double train.");
             // DisplaySuggestion(tilenumber, a_train, "it is the orphan double train");
             return true;
         }
         return false;
     }
 
-    public boolean BoneyardTilePlayable(Tile a_tile, Vector <Train> a_trainslist)
-    {
-        //tile of the user train where player tiles can be added
-        Tile usertrainback = a_trainslist.get(0).GetAllTiles().lastElement();
 
-        if (usertrainback.GetSide2() == a_tile.GetSide1() || usertrainback.GetSide2() == a_tile.GetSide2()) {
-            return true;
-        }
-
-        Tile computertrainback = a_trainslist.get(1).GetAllTiles().lastElement();
-
-        if (a_trainslist.get(1).isTrainMarked()) {
-        if (computertrainback.GetSide2() == a_tile.GetSide1() || computertrainback.GetSide2() == a_tile.GetSide2()) {
-            return true;
-        }
-
-    }
-
-        Tile mexicantrainback = a_trainslist.get(2).GetAllTiles().lastElement();
-        if (mexicantrainback.GetSide2() == a_tile.GetSide1() || mexicantrainback.GetSide2() == a_tile.GetSide2()) {
-            return true;
-        }
-
-        return false;
-    }
-
+    /**
+     * Human::CheckandPlacesecDouble
+     * Place the second double tile to playable train.
+     * @return boolean based on if tile was played
+     * @param a_trainslist list of trains
+     * @param a_train train type of chosen train
+     * @param a_chosenTrain  train object for the chosen train
+     * @param a_response response to the UI based on the move
+     * @param a_position position of the tile in the vector.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public boolean CheckandPlacesecDouble(Vector<Train> a_trainslist, Train a_chosenTrain, String a_train, int a_position,StringBuilder a_response)
     {
         //tilenumber to play
@@ -381,6 +395,15 @@ public class Human extends Player {
 
 
 
+    /**
+     * Human::PlaceCustomTiletoTrain
+     *Place a given tile number to given train
+     * @param a_train train where tile is to be placed
+     * @param a_tilenumber number of the tile to be played
+     * @param a_trainname type of the train where tile is played
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void PlaceCustomTiletoTrain(Train a_train, String a_trainname, int a_tilenumber)
     {
         //using the last tile of the player list which is the boneyard tile.
@@ -400,36 +423,9 @@ public class Human extends Player {
         }
         else
         {
+            //This function is not called in this case so should not occur.
            // cout << "The tile you chose cannot be placed on the " + a_trainname + " train " << endl;
 
         }
     }
-
-    public void PlaceTiletoTrain(Train a_train, String a_trainname, Integer position)
-    {
-        //getting the players tile number input from the user.
-        int tilenumber = position;
-        //allows the user to go to back to menu
-        if (tilenumber == 0) {
-            return;
-        }
-        Tile nextmove = GetTiles().get(tilenumber - 1);
-
-        //Check TrainMove checks if the move to the Train is valid or not and returns true if the
-        //move was successful.
-        if (CheckTrainMove(a_train, nextmove, tilenumber)) {
-            //this gives one extra chance in condition of OrphanDouble
-            if (nextmove.GetSide1() == nextmove.GetSide2()) {
-                SetReplay(true);
-            }
-            SetValidTile(true);
-        }
-        else
-        {
-            //cout << "The tile you chose cannot be placed on the " + a_trainname + " train " << endl;
-
-        }
-
-    }
-
 }

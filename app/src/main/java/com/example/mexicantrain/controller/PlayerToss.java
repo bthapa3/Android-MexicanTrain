@@ -14,30 +14,45 @@ import com.example.mexicantrain.R;
 
 import java.util.Random;
 
+/*
+ ************************************************************
+ * Name:  Bishal Thapa									   *
+ * Project:  Project 3 Mexican Train Android Java				       *
+ * Class:  CMPS366 OPL				                       *
+ * Date:  11/17/2020				                           *
+ ************************************************************
+ */
+
 public class PlayerToss extends AppCompatActivity {
-    //this image view works as a button.
+//--------------Private variable here--------------------------------------------------------
     private ImageView m_heads, m_tails;
     private Button m_continue;
     private TextView m_displayresult;
     private boolean m_humannext=false;
     private Integer m_nextroundnumber, m_humangamescore, m_computergamescore;
+//--------------------------------------------------------------------------------------------------
+    /**
+     * StartGame::onCreate
+     * loads the activity, sets the content view and onclick listeners
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //--------------------------Binding View with controller here.-------------------------------------------
         setContentView(R.layout.activity_player_toss);
         m_heads=findViewById(R.id.headsimage);
         m_tails=findViewById(R.id.tailsimage);
         m_continue=findViewById(R.id.continuetogame);
         m_displayresult=findViewById(R.id.resultdisplay);
 
-        Random rand = new Random();
         //generates number between 0 and 1;lets assume 0 is heads and 1 is tails.
+        Random rand = new Random();
         int value = rand.nextInt(2);
 
         Bundle bundle = getIntent().getExtras();
         if(bundle != null){
-            //This helps to display the right types of files the admin is looking for
-            //File types are insurance or Covid-19 results.
             m_nextroundnumber = bundle.getInt("Roundnumber");
             m_humangamescore=bundle.getInt("Humanscore");
             m_computergamescore=bundle.getInt("Computerscore");
@@ -48,6 +63,7 @@ public class PlayerToss extends AppCompatActivity {
             Toast.makeText(this,"There was null", Toast.LENGTH_SHORT);
         }
 
+        //On click listeners from here----------------------------------------------------------------------------
         m_heads.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

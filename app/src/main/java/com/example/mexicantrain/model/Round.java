@@ -17,51 +17,85 @@ import java.net.URI;
 import java.util.Vector;
 
 import static android.content.Context.MODE_PRIVATE;
-
+/*
+ ************************************************************
+ * Name:  Bishal Thapa									   *
+ * Project:  Project 3 Mexican Train Android Java				       *
+ * Class:  CMPS366 OPL				                       *
+ * Date:  11/17/2020				                           *
+ ************************************************************
+ */
 public class Round {
 
     //private classifiers here
     private int m_currentRound;
     private Vector <Tile> m_boneyardTiles;
-    public enum Playtype {Human,Computer, Mexican, Help, Quit,Boneyard};
-    //this is the engine tile
+    //What the next users playtype will be
+    public enum Playtype {Human,Computer, Mexican, Help, Quit};
+    //this is for engine tile
     private Tile m_engineTile;
-
-    private Integer m_humangamescore=0;
-    private Integer m_computergamescore=0;
+    //number of turns played continuously.
     private Integer m_continousplay=0;
-
-    //three trains for the user. mexican and the computer
+    //three trains: user, mexican and computer
     private Vector <Train>  m_trainsList=new Vector<>();
-
     //User player and the computer player
     private Vector<Player> m_playersList=new Vector<>();
     private boolean m_humannext=false;
-    public int Humanscore(){
-        return m_humanroundscore;
-    }
-    public int Computerscore()
-    {
-        return m_computerroundscore;
-    }
-    private boolean m_gameover;
     private int m_humanroundscore;
     private int m_computerroundscore;
-    private int m_totalcomputer;
-    private int m_totalplayer;
 
 
 
     //public classfiers here
-    public Round(){
 
-    }
+    /**
+     * Round::Round()
+     * Default constructor for the round class
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
+    public Round(){ }
+    /**
+     * Round::Round
+     * Constructor for the Round class
+     * @param  a_round int current round to be played
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public Round(int a_round) {
         m_currentRound = a_round;
-        m_gameover = false;
         m_humanroundscore = 0;
         m_computerroundscore = 0;
     }
+    /**
+     * Round Humanscore
+     * Getter for the human score of the game
+     * @return int score of the human player prior to this round.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
+    public int Humanscore(){
+        return m_humanroundscore;
+    }
+    /**
+     * Round::Computerscore
+     * Getter for the computer score for the game
+     * @return int score of the computer player prior to this round.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
+    public int Computerscore()
+    {
+        return m_computerroundscore;
+    }
+    /**
+     * Round::Initializegame()
+     * Initializes a new round for the game by creating a new deck and shuffling the tiles to player,computer and
+     *      boneyard tiles.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
+
     public void Initializegame() {
         Deck mydeck = new Deck();
 
@@ -100,30 +134,31 @@ public class Round {
         Train mexicantrain=new Train("Mexican");
         m_trainsList.add(mexicantrain);
         m_trainsList.get(2).Addtile(m_engineTile);
-
-        ///////------------------------------------------------------------------------------//
-        System.out.println("@@Engine-"+ m_engineTile.GetSide1() + "-" + m_engineTile.GetSide2());
-
-        for (int i=0;i<m_playersList.get(0).GetTiles().size();i++){
-            System.out.println("Human Tiles " + m_playersList.get(0).GetTiles().get(i).GetSide1() + "--"+
-                    m_playersList.get(0).GetTiles().get(i).GetSide2()
-            );
-        }
-        for (int i=0;i<m_playersList.get(1).GetTiles().size();i++){
-            System.out.println("Computer Tiles " + m_playersList.get(1).GetTiles().get(i).GetSide1() + "--"+
-                    m_playersList.get(1).GetTiles().get(i).GetSide2()
-            );
-        }
     }
 
-
+    /**
+     * Round::InitializefromFIle()
+     * Helps to restore the previous round of the game by storing contents given as parameters to the game state parameters.
+     * @param  a_currentround the nth round that is currently being played
+     * @param  a_humanscore Score of the human player before this round
+     * @param  a_computerscore Score of the computer player before this round
+     * @param  a_humantiles Tiles list that belong to human player
+     * @param  a_computertiles Tiles list that belong to computer player
+     * @param  a_boneyardtiles Tiles allocated to boneyard
+     * @param  a_humantrain Tiles allocated to human train
+     * @param  a_computertrain Tiles allocated to computer train
+     * @param  a_mexicantrain Tiles allocated to mexican train
+     * @param  a_humanfirst value that represents the first player to start the game
+     * @param  a_humantrainmarked value that represents whether human train was marked or not
+     * @param  a_computertrainmarked value that represents whether computer train was marked or not.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void InitializefromFile(int a_currentround, int a_humanscore, int a_computerscore, Vector<Tile>a_humantiles, Vector<Tile> a_computertiles,
                Vector<Tile> a_boneyardtiles, Vector<Tile> a_humantrain, Vector<Tile> a_computertrain, Vector<Tile> a_mexicantrain, boolean a_humanfirst ,
                boolean a_humantrainmarked,  boolean a_computertrainmarked
     ){
         m_currentRound=a_currentround;
-        m_humangamescore=a_humanscore;
-        m_computergamescore=a_computerscore;
         //Get the engine Tile based on the round of the game;
         m_engineTile = a_humantrain.get(0);
 
@@ -170,14 +205,36 @@ public class Round {
             m_trainsList.get(1).MarkTrain();
         }
     }
+
+    /**
+     * Round::Gettrain()
+     * Helps to get the train object
+     * @param trainnumber int that represents the numerical value assigned to train type.
+     * @return Train object based on the input value
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public Train GetTrain(int trainnumber){
         return m_trainsList.get(trainnumber);
     }
 
+    /**
+     * Round::GetTrains()
+     * Helps to get train objects
+     * @return all the three three train objects present.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public Vector<Train> GetTrains(){
         return m_trainsList;
     }
 
+    /**
+     * Round::MoveBoneyardtoHuman()
+     * This function helps to move boneyard tile to human players tile list.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     //This function is called when tile is not playable so just move tile from one pile to another.
     public void MoveBoneyardtoHuman(){
         Tile tiletomove=m_boneyardTiles.get(0);
@@ -187,6 +244,14 @@ public class Round {
         m_trainsList.get(0).MarkTrain();
     }
 
+    /**
+     * Round::MoveBoneyardtoTrain()
+     * Helps to move playable boneyard tile to valid playable train.
+     * @param a_playtype enum which represents how human wants make a move.
+     * @param a_response Response to be sent back by round class to the ui.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public boolean MoveBoneyardtoTrain(Playtype a_playtype, StringBuilder a_response){
         //first add the tile to the human train at the end
         MoveBoneyardtoHuman();
@@ -205,34 +270,66 @@ public class Round {
         return played;
     }
 
+    /**
+     * Round::GetPlayer()
+     * Returns player object
+     * @param playernumber numerical value given based on user
+     * @return player object that corresponds to the given numerical parameter.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public Player GetPlayer(int playernumber){
         return m_playersList.get(playernumber);
     }
+    /**
+     * Round::ReturnBoneyard()
+     * Returns list of all boneyard tiles
+     * @return Vector<Tile> of boneyard tiles.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public Vector<Tile> ReturnBoneyard(){
         return m_boneyardTiles;
     }
+    /**
+     * Round::GetEngineTile()
+     * Returns engine tile
+     * @return Tile that represents the engine tile.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public Tile GetEngineTile(){
         return m_engineTile;
     }
+    /**
+     * Round::Humannext()
+     * Returns who the next player is
+     * @return boolean the next player to play a move
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public boolean Humannext(){
         return m_humannext;
     }
 
 
-
-    //this should return whether if the tile given was playable or not.
-    //if the boolean value was false, response should give the response as to why tile was not moveable.
-
-    //Hint...While picking from Boneyard check the tile to play and if the tile is moveable.
-    //If not call move tile to Human through one of the functions inside the round class.
-    //If moveable ask to pick a train to and move the tile to the train.
+    /**
+     * Round::PlayHuman()
+     * This helps to make a move for a human player turn.This function is called by UI once a human player makes a move.
+     * @param  playtype enum that represents how a player wants to play
+     * @param tilenumber tile number that human want to play
+     * @param response response to be sent back to the UI.
+     * @return boolean value that states whether or not move was made successfully.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public boolean PlayHuman(Playtype playtype, int tilenumber, StringBuilder response){
         //needs to check if next player is human okay for now.
-       //uses enum type to check if wants to quit or serialize.
+        //uses enum type to check if wants to quit or serialize.
         // Player.m_nextstep quitorplay=Player.m_nextstep.Play;
         System.out.println("@@ expected human player");
         StringBuilder msg=new StringBuilder("");
-        Tile tiletoplay=null;
+        Tile  tiletoplay=null;
         if(playtype==playtype.Human || playtype==playtype.Mexican || playtype==playtype.Computer){
             tiletoplay=m_playersList.get(0).GetTile(tilenumber-1);
         }
@@ -250,28 +347,31 @@ public class Round {
             m_humannext=false;
             m_continousplay=0;
         }
-        //instead access the private value of quit of player class using getter and setter.
-        //if(quitorplay == Player.m_nextstep.Quit){
-            //Must serialize and quit here.
-        //}
+
         if(msg.equals("")){
             msg.append("Given tile was not playable");
         }
         response.append(msg.toString());
-        //return true;
         boolean returnvalue= validplay;
         m_playersList.get(0).SetValidTile(false);
         return returnvalue;
 
     }
 
-    //bool a_continue represents if the user wants to quit or continue playing.
+
+    /**
+     * Round::PlayComputer()
+     * Helps to make a move for the computer player.
+     * @param a_continue boolean that represents if game should be continued or not.
+     * @param a_response Stringbuilder value to be sent back as response.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public void PlayComputer(boolean a_continue, StringBuilder a_response){
-        //Player.m_nextstep quitorplay=Player.m_nextstep.Play;
-        //PlayMove(Vector <Train> trainslist, Vector<Tile> boneyard, int continuedmove)
 
         StringBuilder response= new StringBuilder("");
         m_playersList.get(1).SetReplay(false);
+        //was move played successfully.
         boolean played=m_playersList.get(1).PlayMove(m_trainsList, m_boneyardTiles,m_playersList.get(1).GetContinousturns(), -1, null,response );
 
         if(played && (m_playersList.get(1).Getreplay()==false)){
@@ -279,22 +379,26 @@ public class Round {
             m_humannext=true;
             a_response.append(response);
         }
+        //if the computer played a double tile.
         if(m_playersList.get(1).Getreplay()==true){
             response.append("\nComputer gets one more chance to play as double tile was played");
             m_playersList.get(1).SetReplay(false);
             m_playersList.get(1).SetContinousturns(m_playersList.get(1).GetContinousturns()+1);
             a_response.append(response);
         }
+        //should not happen.
         else{
             response.append("Computer failed to play this move or got a chance");
         }
-        if(m_playersList.get(0).Getquitgame() == true){
-            //Must serialize and quit here.
-            System.out.println("@@ Game quits.");
-        }
+
     }
 
-
+    /**
+     * Round::CalculateRoundscore()
+     * Calculates and stores the human and computer player scores based on the tiles remaining.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public boolean CalculateRoundscore(){
         //calculates the round score after the end of the game.
         for (int i=0;i<m_playersList.get(0).GetTiles().size();i++){
@@ -306,14 +410,17 @@ public class Round {
             m_computerroundscore = m_computerroundscore+  m_playersList.get(1).GetTiles().get(i).GetSide1() + m_playersList.get(1).GetTiles().get(i).GetSide2();
         }
 
-        //cout << "Human Player's score for the round:" << m_playerscore << endl;
-        //cout << "Computer Player's score for the round:" << m_computerscore << endl;
-
         return true;
     }
 
 
-
+    /**
+     * Round::Playpossible()
+     * Checks if the game is over or not
+     * @return boolean value based on whether game is over or not.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public boolean Playpossible()
     {
         // if both user trains are marked and boneyard is empty.
@@ -330,13 +437,26 @@ public class Round {
         }
     }
 
+    /**
+     * Round::getContinuePlayed()
+     * @return int continous numbers played by the current player before this.
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public int getContinuePlayed(){
         return m_continousplay;
     }
 
+    /**
+     * Round::SerializeandQuit()
+     * Convert the game state to string value in order to quit game
+     * @return  String value that has game state saved
+     * @author Bishal Thapa
+     * @date 11/15/2021
+     */
     public String SerializeandQuit(int humanscore, int computerscore) {
+        //Everything is stored in one string.
         String mycontent="";
-        // Write to the file
         mycontent=mycontent+ "Round: " + m_currentRound+"\n\n"+ "Computer:\n"+ "   Score: " + computerscore +"\n";
         mycontent=mycontent+ "   Hand: ";
 
@@ -375,8 +495,6 @@ public class Round {
         }
         return mycontent;
     }
-
-
 }
 
 
